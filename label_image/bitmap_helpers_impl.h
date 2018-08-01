@@ -28,7 +28,7 @@ limitations under the License.
 #include "tensorflow/contrib/lite/string_util.h"
 #include "tensorflow/contrib/lite/version.h"
 
-#include "tensorflow/contrib/lite/examples/label_image/label_image.h"
+#include "label_image.h"
 
 namespace tflite {
 namespace label_image {

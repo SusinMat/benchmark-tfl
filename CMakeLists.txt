@@ -3,35 +3,33 @@ cmake_minimum_required(VERSION 3.5)
 # Project
 project(benchmark_tfl C CXX)
 
-# Set C++11 as a minimum standard for the whole project
-if (CMAKE_CROSSCOMPILING)
-    set(CMAKE_CXX_STANDARD 11)
-else ()
-    set(CMAKE_CXX_STANDARD 14)
-endif ()
+set(CMAKE_CXX_STANDARD 14)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 
-include_directories(${TENSORFLOW_ROOT_DIR}
-    # include TFL headers
+if (NOT DEFINED TENSORFLOW_LITE_INSTALL_DIR)
+    set(TENSORFLOW_LITE_INSTALL_DIR "/tmp/${user}/tfl")
+endif ()
+
+include_directories(
+    "${TENSORFLOW_LITE_INSTALL_DIR}/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/label_image"
     )
 
-install(TARGETS benchmark_tfl EXPORT benchmark_tfl_export
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib)
-
-file (GLOB LABEL_IMAGE_SOURCES "${TENSORFLOW_LITE_ROOT_DIR}/label_image/*.cc")
-list(REMOVE_ITEM LABEL_IMAGE_SOURCES "${TENSORFLOW_LITE_ROOT_DIR}/label_image/label_image_test.cc")
-add_executable(label_image ${LABEL_IMAGE_SOURCES})
-target_link_libraries(label_image tensorflow-lite)
+file(GLOB LABEL_IMAGE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/label_image/*.cc")
+list(REMOVE_ITEM LABEL_IMAGE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/label_image/label_image_test.cc")
+add_executable(label_image "${LABEL_IMAGE_SOURCES}")
+target_link_libraries(label_image "${TENSORFLOW_LITE_INSTALL_DIR}/lib/libtensorflow-lite.a")
 
 install(TARGETS label_image DESTINATION bin)
+target_link_libraries(label_image "${CMAKE_DL_LIBS}")
+find_package(Threads REQUIRED)
+target_link_libraries(label_image Threads::Threads)
 
 # Installation and packaging
 # ----------------------------------------------------------------------------
 # CPack stuff
 # ----------------------------------------------------------------------------
-include(CPackLists)
+# include(CPackLists)
 
 # vim: set ts=4 sts=4 sw=4 et:

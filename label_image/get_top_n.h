@@ -16,7 +16,7 @@ limitations under the License.
 #ifndef TENSORFLOW_CONTRIB_LITE_EXAMPLES_LABEL_IMAGE_GET_TOP_N_H
 #define TENSORFLOW_CONTRIB_LITE_EXAMPLES_LABEL_IMAGE_GET_TOP_N_H
 
-#include "tensorflow/contrib/lite/examples/label_image/get_top_n_impl.h"
+#include "get_top_n_impl.h"
 
 namespace tflite {
 namespace label_image {

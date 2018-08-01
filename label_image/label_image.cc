@@ -36,8 +36,8 @@ limitations under the License.
 #include "tensorflow/contrib/lite/optional_debug_tools.h"
 #include "tensorflow/contrib/lite/string_util.h"
 
-#include "tensorflow/contrib/lite/examples/label_image/bitmap_helpers.h"
-#include "tensorflow/contrib/lite/examples/label_image/get_top_n.h"
+#include "bitmap_helpers.h"
+#include "get_top_n.h"
 
 #define LOG(x) std::cerr
 

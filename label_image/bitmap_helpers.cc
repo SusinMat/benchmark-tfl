@@ -21,7 +21,7 @@ limitations under the License.
 
 #include <unistd.h>  // NOLINT(build/include_order)
 
-#include "tensorflow/contrib/lite/examples/label_image/bitmap_helpers.h"
+#include "bitmap_helpers.h"
 
 #define LOG(x) std::cerr
 
