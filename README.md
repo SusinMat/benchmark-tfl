@@ -8,7 +8,7 @@ First, compile TFL for the target:
 ```
 cd $TENSORFLOW_ROOT_DIR/tensorflow/contrib/lite
 mkdir build
-cmake .. -DCMAKE_BUILD_TYPE=Release -Dtensorflow_lite_BUILD_EXAMPLES=ON -DCMAKE_INSTALL_PREFIX=/tmp/$USER/tensorflow_lite -DTIZEN_TARGET=mobile-4.0 -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/tizen.cmake -DCMAKE_VERBOSE_MAKEFILE=ON
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/tmp/$USER/tensorflow_lite -DTIZEN_TARGET=mobile-4.0 -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/tizen.cmake -DCMAKE_VERBOSE_MAKEFILE=ON
 make install
 ```
 
