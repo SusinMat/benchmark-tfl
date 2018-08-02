@@ -10,7 +10,7 @@ cd $TENSORFLOW_ROOT_DIR/tensorflow/contrib/lite
 sh ./download_dependencies.sh
 mkdir build
 cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/tmp/$USER/tensorflow_lite -DTIZEN_TARGET=mobile-4.0 -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/tizen.cmake -DCMAKE_VERBOSE_MAKEFILE=ON
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/tmp/$USER/tensorflow_lite -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/tizen.cmake -DTIZEN_DEVICE=ON -DTIZEN_TARGET=mobile-4.0
 make install
 ```
 
@@ -19,6 +19,6 @@ Then, compile with label\_image:
 ```
 mkdir build
 cd build
-cmake .. -DTIZEN_TARGET=mobile-4.0 -DCMAKE_TOOLCHAIN_FILE=../toolchains/tizen.cmake
+cmake .. -DCMAKE_TOOLCHAIN_FILE=../toolchains/tizen.cmake -DTIZEN_DEVICE=ON -DTIZEN_TARGET=mobile-4.0
 make
 ```
