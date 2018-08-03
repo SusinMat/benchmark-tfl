@@ -17,6 +17,7 @@ make install
 Then, compile with label\_image:
 
 ```
+cd $BENCHMARKK_TFL_ROOT_DIR
 mkdir build
 cd build
 cmake .. -DCMAKE_TOOLCHAIN_FILE=../toolchains/tizen.cmake -DTIZEN_DEVICE=ON -DTIZEN_TARGET=mobile-4.0
