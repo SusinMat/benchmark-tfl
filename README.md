@@ -23,3 +23,15 @@ cd build
 cmake .. -DCMAKE_TOOLCHAIN_FILE=../toolchains/tizen.cmake -DTIZEN_DEVICE=ON -DTIZEN_TARGET=mobile-4.0
 make
 ```
+
+You should the `label_image` executable into your local machine and run it like so:
+
+```
+rsync hive:benchmark_tfl/build/label_image .
+create_tunnel -u
+create_tunnel rpi
+sdb connect localhost:10101 && sdb root on
+sdb push label_image label_image
+sdb shell
+./label_image
+```
