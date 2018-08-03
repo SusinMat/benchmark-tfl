@@ -7,9 +7,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 
-if (NOT DEFINED TENSORFLOW_LITE_INSTALL_DIR)
-    set(TENSORFLOW_LITE_INSTALL_DIR "/tmp/$ENV{USER}/tensorflow_lite")
-endif ()
+set(TENSORFLOW_LITE_INSTALL_DIR "/tmp/$ENV{USER}/tensorflow_lite" CACHE PATH "TensorFlow Lite installation directory")
 
 include_directories(
     "${TENSORFLOW_LITE_INSTALL_DIR}/include"

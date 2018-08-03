@@ -4,9 +4,7 @@
 #   $ cmake -DCMAKE_TOOLCHAIN_FILE=path/to/the/tizen.cmake ..
 #   $ make -j8
 
-if (NOT DEFINED TIZEN_SDK)
-    set (TIZEN_SDK "$ENV{HOME}/tizen-studio" CACHE PATH "Location of tizen studio.")
-endif ()
+set (TIZEN_SDK "$ENV{HOME}/tizen-studio" CACHE PATH "Location of tizen studio.")
 
 message(STATUS "Tizen SDK path: ${TIZEN_SDK}")
 
