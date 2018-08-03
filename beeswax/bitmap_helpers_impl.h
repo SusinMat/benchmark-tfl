@@ -28,7 +28,7 @@ limitations under the License.
 #include "tensorflow/contrib/lite/string_util.h"
 #include "tensorflow/contrib/lite/version.h"
 
-#include "beeswax"
+#include "beeswax.h"
 
 namespace tflite {
 namespace beeswax {
