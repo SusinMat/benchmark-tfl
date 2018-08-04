@@ -13,8 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef BENCHMARK_TFL_BEESWAX_BITMAP_HELPERS_IMPL_H_
-#define BENCHMARK_TFL_BEESWAX_BITMAP_HELPERS_IMPL_H_
+#ifndef BITMAP_HELPERS_IMPL_H_
+#define BITMAP_HELPERS_IMPL_H_
 
 #include "tensorflow/contrib/lite/builtin_op_data.h"
 #include "tensorflow/contrib/lite/interpreter.h"
@@ -30,7 +30,6 @@ limitations under the License.
 
 #include "beeswax.h"
 
-namespace tflite {
 namespace beeswax {
 
 template <class T>
@@ -38,7 +37,7 @@ void resize(T* out, uint8_t* in, int image_height, int image_width,
             int image_channels, int wanted_height, int wanted_width,
             int wanted_channels, Settings* s) {
   int number_of_pixels = image_height * image_width * image_channels;
-  std::unique_ptr<Interpreter> interpreter(new Interpreter);
+  std::unique_ptr<tflite::Interpreter> interpreter(new tflite::Interpreter);
 
   int base_index = 0;
 
@@ -61,9 +60,9 @@ void resize(T* out, uint8_t* in, int image_height, int image_width,
       2, kTfLiteFloat32, "output",
       {1, wanted_height, wanted_width, wanted_channels}, quant);
 
-  ops::builtin::BuiltinOpResolver resolver;
+  tflite::ops::builtin::BuiltinOpResolver resolver;
   TfLiteRegistration* resize_op =
-      resolver.FindOp(BuiltinOperator_RESIZE_BILINEAR);
+      resolver.FindOp(tflite::BuiltinOperator_RESIZE_BILINEAR);
   auto* params = reinterpret_cast<TfLiteResizeBilinearParams*>(
       malloc(sizeof(TfLiteResizeBilinearParams)));
   params->align_corners = false;
@@ -98,6 +97,5 @@ void resize(T* out, uint8_t* in, int image_height, int image_width,
 }
 
 }  // namespace beeswax
-}  // namespace tflite
 
-#endif  // BENCHMARK_TFL_BEESWAX_BITMAP_HELPERS_IMPL_H_
+#endif  // BITMAP_HELPERS_IMPL_H_

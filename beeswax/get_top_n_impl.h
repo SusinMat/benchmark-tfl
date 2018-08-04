@@ -13,13 +13,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef BENCHMARK_TFL_BEESWAX_GET_TOP_N_IMPL_H
-#define BENCHMARK_TFL_BEESWAX_GET_TOP_N_IMPL_H
+#ifndef GET_TOP_N_IMPL_H
+#define GET_TOP_N_IMPL_H
 
 #include <algorithm>
 #include <queue>
 
-namespace tflite {
 namespace beeswax {
 
 extern bool input_floating;
@@ -65,6 +64,5 @@ void get_top_n(T* prediction, int prediction_size, size_t num_results,
 }
 
 }  // namespace beeswax
-}  // namespace tflite
 
-#endif  // BENCHMARK_TFL_BEESWAX_GET_TOP_N_IMPL_H
+#endif  // GET_TOP_N_IMPL_H

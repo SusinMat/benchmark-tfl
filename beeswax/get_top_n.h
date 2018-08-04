@@ -13,12 +13,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef TENSORFLOW_CONTRIB_LITE_EXAMPLES_LABEL_IMAGE_GET_TOP_N_H
-#define TENSORFLOW_CONTRIB_LITE_EXAMPLES_LABEL_IMAGE_GET_TOP_N_H
+#ifndef GET_TOP_N_H
+#define GET_TOP_N_H
 
 #include "get_top_n_impl.h"
 
-namespace tflite {
 namespace beeswax {
 
 template <class T>
@@ -33,6 +32,5 @@ template void get_top_n<float>(float*, int, size_t, float,
                                std::vector<std::pair<float, int>>*, bool);
 
 }  // namespace beeswax
-}  // namespace tflite
 
-#endif  // TENSORFLOW_CONTRIB_LITE_EXAMPLES_LABEL_IMAGE_GET_TOP_N_H
+#endif // GET_TOP_N_H

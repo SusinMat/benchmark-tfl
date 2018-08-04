@@ -13,13 +13,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef BENCHMARK_TFL_BEESWAX_BITMAP_HELPERS_H_
-#define BENCHMARK_TFL_BEESWAX_BITMAP_HELPERS_H_
+#ifndef BITMAP_HELPERS_H_
+#define BITMAP_HELPERS_H_
 
 #include "bitmap_helpers_impl.h"
 #include "beeswax.h"
 
-namespace tflite {
 namespace beeswax {
 
 uint8_t* read_bmp(const std::string& input_bmp_name, int* width, int* height,
@@ -37,6 +36,5 @@ template void resize<float>(float*, unsigned char*, int, int, int, int, int,
                             int, Settings*);
 
 }  // namespace beeswax
-}  // namespace tflite
 
-#endif  // BENCHMARK_TFL_BEESWAX_BITMAP_HELPERS_H
+#endif  // BITMAP_HELPERS_H_

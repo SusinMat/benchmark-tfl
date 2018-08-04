@@ -21,11 +21,20 @@ limitations under the License.
 
 #include <unistd.h>  // NOLINT(build/include_order)
 
-#include "bitmap_helpers.h"
+#include "beeswax.h"
+
+#include "tensorflow/contrib/lite/builtin_op_data.h"
+#include "tensorflow/contrib/lite/interpreter.h"
+#include "tensorflow/contrib/lite/kernels/register.h"
+#include "tensorflow/contrib/lite/version.h"
+
+#include "tensorflow/contrib/lite/builtin_op_data.h"
+#include "tensorflow/contrib/lite/interpreter.h"
+#include "tensorflow/contrib/lite/kernels/register.h"
+#include "tensorflow/contrib/lite/version.h"
 
 #define LOG(x) std::cerr
 
-namespace tflite {
 namespace beeswax {
 
 uint8_t* decode_bmp(const uint8_t* input, int row_size, uint8_t* const output,
@@ -117,4 +126,3 @@ uint8_t* read_bmp(const std::string& input_bmp_name, int* width, int* height,
 }
 
 }  // namespace beeswax
-}  // namespace tflite
