@@ -43,17 +43,17 @@ namespace beeswax {
 
 void display_usage() {
     std::cout << "beeswax (LEDL version of label_image)\n"
-              << "--accelerated, -a: [0|1], use Android NNAPI or note\n"
-              << "--count, -c: loop interpreter->Invoke() for certain times\n"
-              << "--input_mean, -b: input mean\n"
-              << "--input_std, -s: input standard deviation\n"
-              << "--image, -i: image_name.bmp\n"
-              << "--image_list, -f: image_list.txt\n"
-              << "--help, -h: show help message\n"
-              << "--labels, -l: labels for the model\n"
+              << "--accelerated,  -a: [0|1], use Android NNAPI or note\n"
+              << "--count,        -c: loop interpreter->Invoke() for certain times\n"
+              << "--input_mean,   -b: input mean\n"
+              << "--input_std,    -s: input standard deviation\n"
+              << "--image,        -i: image_name.bmp\n"
+              << "--image_list,   -f: image_list.txt\n"
+              << "--help,         -h: show help message\n"
+              << "--labels,       -l: labels for the model\n"
               << "--tflite_model, -m: model_name.tflite\n"
-              << "--threads, -t: number of threads\n"
-              << "--verbose, -v: [0|1] print more information\n"
+              << "--threads,      -t: number of threads\n"
+              << "--verbose,      -v: [0|1] print more information\n"
               << "\n";
 }
 
@@ -95,10 +95,14 @@ void RunInference(Settings &s, std::string input_img_name) {
         std::cerr << "\nFailed to mmap model " << s.model_name << "\n";
         exit(-1);
     }
-    std::cout << "Loaded model " << s.model_name << "\n";
+    if (s.verbose) {
+        std::cout << "Loaded model " << s.model_name << "\n";
+    }
 
     model->error_reporter();
-    std::cout << "Resolved reporter\n";
+    if (s.verbose) {
+        std::cout << "Resolved reporter\n";
+    }
 
     tflite::ops::builtin::BuiltinOpResolver resolver;
 
@@ -107,7 +111,9 @@ void RunInference(Settings &s, std::string input_img_name) {
         std::cerr << "Failed to construct interpreter\n";
         exit(-1);
     }
-    std::cout << "Interpreter built\n";
+    if (s.verbose) {
+        std::cout << "Interpreter built\n";
+    }
 
     interpreter->UseNNAPI(s.accel);
 
@@ -197,10 +203,9 @@ void RunInference(Settings &s, std::string input_img_name) {
         status = interpreter->Invoke();
     }
     gettimeofday(&stop_time, NULL);
-    std::cout << "invoked \n";
-    std::cout << "average time: "
-              << (get_us(stop_time) - get_us(start_time)) / (s.loop_count * 1000)
-              << " ms \n";
+    if (s.verbose) {
+        std::cout << "Invoked \n";
+    }
 
     if (status != kTfLiteOk) {
         std::cerr << "Failed to invoke tflite!\n";
@@ -236,11 +241,26 @@ void RunInference(Settings &s, std::string input_img_name) {
         exit(-1);
     }
 
-    for (const auto& result : top_results) {
-        const float confidence = result.first;
-        const int index = result.second;
-        std::cout << confidence << ": " << index << " " << labels[index] << "\n";
+    // Print results
+    std::cout << std::endl;
+    std::cout << "image-path: " << input_img_name << std::endl;
+
+    std::cout << "top-5:";
+    for (auto it = top_results.begin(); it != top_results.end(); it++) {
+        const float confidence = it->first;
+        const int index = it->second;
+
+        if(it == top_results.begin()){
+            std::cout << " " << labels[index];
+        } else {
+            std::cout << " | " << labels[index];
+        }
     }
+    std::cout << std::endl;
+
+    std::cout << "time: "
+              << (get_us(stop_time) - get_us(start_time)) / (s.loop_count * 1000)
+              << " ms \n";
 }
 
 
@@ -323,11 +343,25 @@ int Main(int argc, char** argv) {
 
     ParseSettings(s, input_img, input_img_list, argc, argv);
 
+    // run inference with single image
     if(!input_img.empty()) {
         RunInference(s, input_img);
+    // run inference read list of images from input_img_list
+    } else if(!input_img_list.empty()){
+        std::ifstream input_file(input_img_list);
+        std::string line;
+
+        if (input_file.is_open()) {
+            while(std::getline(input_file, line)) {
+                RunInference(s, line);
+            }
+            input_file.close();
+        } else {
+            std::cerr << "Unable to open file " << input_img_list << std::endl;
+        }
     } else {
-        // TODO: open input_img_list file and run inference for each image
-        std::cout << "Run with a lot of images" << std::endl;
+        std::cerr << "No image input set. Use flag -i or -f" << std::endl;
+        display_usage();
     }
 
     return 0;
