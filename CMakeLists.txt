@@ -11,7 +11,9 @@ set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CXX_FLAGS}" CACHE PATH "Path to the toolchain 
 set(TENSORFLOW_LITE_SOURCE_DIR "$ENV{HOME}/tensorflow/tensorflow/contrib/lite" CACHE PATH "TensorFlow Lite source directory")
 set(TENSORFLOW_LITE_INSTALL_DIR "/tmp/$ENV{USER}/tensorflow_lite" CACHE PATH "TensorFlow Lite installation directory")
 
-get_filename_component(TOOLCHAIN_PATH "${CMAKE_TOOLCHAIN_FILE}" REALPATH BASE_DIR "${CMAKE_BINARY_DIR}")
+if(NOT ${CMAKE_TOOLCHAIN_FILE} STREQUAL "")
+    get_filename_component(TOOLCHAIN_PATH "${CMAKE_TOOLCHAIN_FILE}" REALPATH BASE_DIR "${CMAKE_BINARY_DIR}" FORCE)
+endif()
 
 ExternalProject_Add(tensorflow_lite
     PREFIX "${TENSORFLOW_LITE_INSTALL_DIR}"
