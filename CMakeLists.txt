@@ -6,7 +6,18 @@ include(ExternalProject)
 set(CMAKE_CXX_STANDARD 14)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+
 set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CXX_FLAGS}" CACHE PATH "Path to the toolchain that will be used to compile and link")
+
+set(DEFAULT_BUILD_TYPE "Release")
+
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    message(STATUS "Setting build type to '${DEFAULT_BUILD_TYPE}' as none was specified")
+    set(CMAKE_BUILD_TYPE ${DEFAULT_BUILD_TYPE} CACHE STRING "Type of build" FORCE)
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+else()
+    set(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING "Type of build" FORCE)
+endif()
 
 set(TENSORFLOW_LITE_SOURCE_DIR "$ENV{HOME}/tensorflow/tensorflow/contrib/lite" CACHE PATH "TensorFlow Lite source directory")
 set(TENSORFLOW_LITE_INSTALL_DIR "/tmp/$ENV{USER}/tensorflow_lite" CACHE PATH "TensorFlow Lite installation directory")
