@@ -12,7 +12,7 @@ cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../toolchains/tizen.c
 make -j32
 ```
 
-You should the `label_image` executable into your local machine and run it like so:
+You should see the `label_image` executable into your local machine and run it like so:
 
 ```
 rsync hive:benchmark_tfl/build/label_image .
