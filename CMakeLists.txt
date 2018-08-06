@@ -7,11 +7,11 @@ set(CMAKE_CXX_STANDARD 14)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 
-set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CXX_FLAGS}" CACHE PATH "Path to the toolchain that will be used to compile and link")
+set(CMAKE_TOOLCHAIN_FILE "${CMAKE_TOOLCHAIN_FILE}" CACHE PATH "Path to the toolchain that will be used to compile and link")
 
 set(DEFAULT_BUILD_TYPE "Release")
 
-set(TIZEN_SDK "$ENV{HOME}/tizen-studio" CACHE PATH "Location of tizen studio.")
+set(TIZEN_SDK "$ENV{HOME}/tizen-studio" CACHE PATH "Location of Tizen Studio.")
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     message(STATUS "Setting build type to '${DEFAULT_BUILD_TYPE}' as none was specified")
@@ -22,7 +22,9 @@ else()
 endif()
 
 set(TENSORFLOW_LITE_SOURCE_DIR "$ENV{HOME}/tensorflow/tensorflow/contrib/lite" CACHE PATH "TensorFlow Lite source directory")
-set(TENSORFLOW_LITE_INSTALL_DIR "/tmp/$ENV{USER}/tensorflow_lite" CACHE PATH "TensorFlow Lite installation directory")
+
+# set(TENSORFLOW_LITE_INSTALL_DIR "/tmp/$ENV{USER}/tensorflow_lite" CACHE PATH "TensorFlow Lite installation directory")
+set(TENSORFLOW_LITE_INSTALL_DIR "${CMAKE_BINARY_DIR}/tensorflow_lite" CACHE PATH "TensorFlow Lite installation directory")
 
 if(NOT ${CMAKE_TOOLCHAIN_FILE} STREQUAL "")
     get_filename_component(TOOLCHAIN_PATH "${CMAKE_TOOLCHAIN_FILE}" REALPATH BASE_DIR "${CMAKE_BINARY_DIR}" FORCE)
