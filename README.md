@@ -15,11 +15,15 @@ make -j32
 You should see the `label_image` executable into your local machine and run it like so:
 
 ```
-rsync hive:benchmark_tfl/build/label_image .
+rsync -zah hive:benchmark_tfl/build/label_image .
+rsync -zah hive:benchmark_tfl/testdata .
 create_tunnel -u
 create_tunnel rpi
 sdb connect localhost:10101 && sdb root on
 sdb push label_image label_image
+sdb push testdata/mobilenet_quant_v1_224.tflite mobilenet_quant_v1_224.tflite
+sdb push testdata/labels.txt labels.txt
+sdb push testdata/grace_hopper.bmp grace_hopper.bmp
 sdb shell
 ./label_image
 ```
