@@ -42,18 +42,21 @@ limitations under the License.
 namespace beeswax {
 
 void display_usage() {
-    std::cout << "beeswax (LEDL version of label_image)\n"
-              << "--accelerated,  -a: [0|1], use Android NNAPI or note\n"
-              << "--count,        -c: loop interpreter->Invoke() for certain times\n"
-              << "--input_mean,   -b: input mean\n"
-              << "--input_std,    -s: input standard deviation\n"
+    std::cout << "LEDL version of label_image\n"
+              << "./beeswax [OPTIONS]\n"
+              << "--help,         -h: show help message\n"
               << "--image,        -i: image_name.bmp\n"
               << "--image_list,   -f: image_list.txt\n"
-              << "--help,         -h: show help message\n"
-              << "--labels,       -l: labels for the model\n"
               << "--tflite_model, -m: model_name.tflite\n"
-              << "--threads,      -t: number of threads\n"
+              << "                    default: ./mobilenet_quant_v1_224.tflite\n"
+              << "--labels,       -l: labels for the model\n"
+              << "                    default: ./labels.txt\n"
               << "--verbose,      -v: [0|1] print more information\n"
+              << "--count,        -c: loop interpreter->Invoke() for certain times\n"
+              << "--threads,      -t: number of threads\n"
+              << "--accelerated,  -a: [0|1], use Android NNAPI or note\n"
+              << "--input_mean,   -b: input mean\n"
+              << "--input_std,    -s: input standard deviation\n"
               << "\n";
 }
 
