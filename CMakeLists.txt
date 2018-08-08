@@ -44,6 +44,7 @@ include_directories(
     "${TENSORFLOW_LITE_INSTALL_DIR}/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/label_image"
     "${CMAKE_CURRENT_SOURCE_DIR}/beeswax"
+    "${CMAKE_CURRENT_SOURCE_DIR}/bumblebee"
     )
 
 # label_image
@@ -57,8 +58,8 @@ target_link_libraries(label_image dl)
 target_link_libraries(label_image Threads::Threads)
 
 # beeswax
-file(GLOB LABEL_IMAGE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/beeswax/*.cc")
-add_executable(beeswax "${LABEL_IMAGE_SOURCES}")
+file(GLOB BEESWAX_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/beeswax/*.cc")
+add_executable(beeswax "${BEESWAX_SOURCES}")
 add_dependencies(beeswax tensorflow_lite)
 target_link_libraries(beeswax "${TENSORFLOW_LITE_INSTALL_DIR}/lib/libtensorflow-lite.a")
 
@@ -66,5 +67,10 @@ install(TARGETS beeswax DESTINATION bin)
 target_link_libraries(beeswax dl)
 target_link_libraries(beeswax Threads::Threads)
 
+# bumblebee
+file(GLOB BUMBLEBEE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/bumblebee/*.c")
+add_executable(bumblebee "${BUMBLEBEE_SOURCES}")
+
+install(TARGETS bumblebee DESTINATION bin)
 
 # vim: set ts=4 sts=4 sw=4 et:
