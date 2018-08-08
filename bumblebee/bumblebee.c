@@ -64,9 +64,9 @@ void set_blocking(int fd, bool should_block)
 int main(int argc, char **argv)
 {
 	printf("This is\n"
-			"<B><U><M><B><L><E><B><E><E\n");
+			"<B><U><M><B><L><E><B><E><E>\n");
 
-	char *portname = "/dev/ttyUSB1";
+	char *portname = "/dev/ttyUSB0";
 	int fd = open (portname, O_RDWR | O_NOCTTY | O_SYNC);
 	if (fd < 0) {
 		printf("error %d opening %s: %s\n", errno, portname, strerror(errno));
@@ -77,10 +77,15 @@ int main(int argc, char **argv)
 	set_blocking(fd, false);                 // set no blocking
 
 	// write(fd, "hello!\n", 7);                // send 7 character greeting
-
 	// usleep((7 + 25) * 100);                  // sleep enough to transmit the 7 plus
+
 	// receive 25:  approx 100 uS per char transmit
 	char buf[100];
 	int n = read(fd, buf, sizeof buf);       // read up to 100 characters if ready to read
+	printf("%d\n", n);
+	for (int i = 0; i < 100; i++) {
+		printf("%c", buf[i]);
+	}
+	printf("\n");
 	return 0;
 }
