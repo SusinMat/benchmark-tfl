@@ -1,10 +1,24 @@
 #include <errno.h>
 #include <fcntl.h>
+#include <inttypes.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <termios.h>
+#include <time.h>
 #include <unistd.h>
+
+int64_t get_time()
+{
+	struct timespec time;
+	int64_t ms = 0;
+
+	clock_gettime(CLOCK_MONOTONIC, &time);
+	ms = time.tv_sec * 1000 + time.tv_nsec / 1000000;
+
+	return ms;
+}
 
 int set_interface_attribs(int fd, int speed, int parity)
 {
@@ -63,29 +77,34 @@ void set_blocking(int fd, bool should_block)
 
 int main(int argc, char **argv)
 {
-	printf("This is\n"
-			"<B><U><M><B><L><E><B><E><E>\n");
-
+	const int record_size = 8;
+	const int buf_size = 2000 * record_size;
+	char buf[buf_size];
+	int cursor_position = 0;
 	char *portname = "/dev/ttyUSB0";
 	int fd = open (portname, O_RDWR | O_NOCTTY | O_SYNC);
+	// printf("This is\n""<B><U><M><B><L><E><B><E><E>\n");
 	if (fd < 0) {
 		printf("error %d opening %s: %s\n", errno, portname, strerror(errno));
 		return -1;
 	}
 
 	set_interface_attribs(fd, B115200, 0x0); // set speed to 115,200 bps, 8n1 (no parity)
-	set_blocking(fd, false);                 // set no blocking
+	set_blocking(fd, true);                 // set no blocking
 
 	// write(fd, "hello!\n", 7);                // send 7 character greeting
 	// usleep((7 + 25) * 100);                  // sleep enough to transmit the 7 plus
 
 	// receive 25:  approx 100 uS per char transmit
-	char buf[100];
-	int n = read(fd, buf, sizeof buf);       // read up to 100 characters if ready to read
-	printf("%d\n", n);
-	for (int i = 0; i < 100; i++) {
-		printf("%c", buf[i]);
-	}
-	printf("\n");
+	do {
+		printf("MONOTONIC_CLOCK: %"PRId64"\n", get_time());
+		for (cursor_position = 0; cursor_position < buf_size - 1; cursor_position += record_size) {
+			int n = read(fd, buf + cursor_position, sizeof buf);       // read up to 3rd_arg characters if ready to read
+			// printf("Bytes read: %d\n", n);
+		}
+		buf[cursor_position] = '\0';
+		printf("%s\n", buf);
+	} while (true);
+
 	return 0;
 }
