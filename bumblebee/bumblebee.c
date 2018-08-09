@@ -78,11 +78,12 @@ void set_blocking(int fd, bool should_block)
 int main(int argc, char **argv)
 {
 	const int record_size = 8;
-	const int buf_size = 2000 * record_size;
+	const int buf_size = 1000 * record_size;
 	char buf[buf_size];
 	int cursor_position = 0;
 	char *portname = "/dev/ttyUSB0";
 	int fd = open (portname, O_RDWR | O_NOCTTY | O_SYNC);
+	struct timespec time;
 	// printf("This is\n""<B><U><M><B><L><E><B><E><E>\n");
 	if (fd < 0) {
 		printf("error %d opening %s: %s\n", errno, portname, strerror(errno));
@@ -97,7 +98,9 @@ int main(int argc, char **argv)
 
 	// receive 25:  approx 100 uS per char transmit
 	do {
-		printf("MONOTONIC_CLOCK: %"PRId64"\n", get_time());
+		clock_gettime(CLOCK_MONOTONIC, &time);
+		printf("MONOTONIC_CLOCK: %ld.%ld s\n", time.tv_sec, time.tv_nsec / 1000000);
+		// printf("MONOTONIC_CLOCK: %"PRId64" ms\n", get_time());
 		for (cursor_position = 0; cursor_position < buf_size - 1; cursor_position += record_size) {
 			int n = read(fd, buf + cursor_position, sizeof buf);       // read up to 3rd_arg characters if ready to read
 			// printf("Bytes read: %d\n", n);
