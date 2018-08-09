@@ -78,25 +78,26 @@ void set_blocking(int fd, bool should_block)
 int main(int argc, char **argv)
 {
 	const int record_size = 8;
-	const int buf_size = 1000 * record_size;
+	const int record_max = 1000;
+	const int buf_size = record_max * record_size;
 	char buf[buf_size];
 	int cursor_position = 0;
 	char *portname = "/dev/ttyUSB0";
-	int fd = open (portname, O_RDWR | O_NOCTTY | O_SYNC);
+	int fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC);
 	struct timespec time;
-	// printf("This is\n""<B><U><M><B><L><E><B><E><E>\n");
+	// printf("      This      is\n""<B><U><M><B><L><E><B><E><E>\n");
 	if (fd < 0) {
 		printf("error %d opening %s: %s\n", errno, portname, strerror(errno));
 		return -1;
 	}
 
 	set_interface_attribs(fd, B115200, 0x0); // set speed to 115,200 bps, 8n1 (no parity)
-	set_blocking(fd, true);                 // set no blocking
+	set_blocking(fd, true);                  // set no blocking
 
 	// write(fd, "hello!\n", 7);                // send 7 character greeting
 	// usleep((7 + 25) * 100);                  // sleep enough to transmit the 7 plus
-
 	// receive 25:  approx 100 uS per char transmit
+
 	do {
 		clock_gettime(CLOCK_MONOTONIC, &time);
 		printf("MONOTONIC_CLOCK: %ld.%ld s\n", time.tv_sec, time.tv_nsec / 1000000);
