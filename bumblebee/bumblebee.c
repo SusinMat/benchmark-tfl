@@ -76,7 +76,7 @@ void set_blocking(int fd, bool should_block)
 
 int main(int argc, char **argv)
 {
-	const int record_size = 8;
+	const int record_size = 7;
 	const int record_max = 1000;
 	const int buf_size = record_max * record_size;
 	char buf[buf_size];
@@ -101,9 +101,12 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_MONOTONIC, &time);
 		printf("MONOTONIC_CLOCK: %010ld.%03ld s\n", time.tv_sec, time.tv_nsec / 1000000);
 		// printf("MONOTONIC_CLOCK: %"PRId64" ms\n", get_time());
-		for (cursor_position = 0; cursor_position < buf_size - record_size; cursor_position += record_size) {
-			int n = read(fd, buf + cursor_position, record_size + 2);       // read up to 3rd_arg characters if ready to read
-			// printf("Bytes read: %d\n", n);
+		for (cursor_position = 0; cursor_position < buf_size - record_size * 2; cursor_position += record_size) {
+			int bytes_read = 0;
+			while (bytes_read < record_size) {
+				int n = read(fd, buf + cursor_position + bytes_read, record_size - bytes_read);       // read up to 3rd_arg characters if ready to read
+				bytes_read += n;
+			}
 		}
 		buf[cursor_position] = '\0';
 		printf("%s\n", buf);
