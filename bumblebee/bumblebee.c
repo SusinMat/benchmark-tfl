@@ -132,9 +132,8 @@ int main(int argc, char **argv)
 	pthread_create(&writer, NULL, writer_thread, NULL);
 
 	for (;;) {
-		clock_gettime(CLOCK_MONOTONIC, &time_shared);
-		// printf("MONOTONIC_CLOCK: %010ld.%03ld s\n", time.tv_sec, time.tv_nsec / MILLION);
 		if(alternate) {
+			clock_gettime(CLOCK_MONOTONIC, &time_shared);
 			for (cursor_position = 0; cursor_position < buf_size - record_size * 2; cursor_position += record_size) {
 				int bytes_read = 0;
 				while (bytes_read < record_size) {
@@ -145,6 +144,7 @@ int main(int argc, char **argv)
 			}
 			buf[cursor_position] = '\0';
 		} else {
+			clock_gettime(CLOCK_MONOTONIC, &time_shared2);
 			for (cursor_position = 0; cursor_position < buf_size - record_size * 2; cursor_position += record_size) {
 				int bytes_read = 0;
 				while (bytes_read < record_size) {
@@ -163,4 +163,4 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-// vim: set ts=8 sts=8 sw=8 noet :
+// vim: set ts=4 sts=4 sw=4 noet :
