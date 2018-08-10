@@ -15,8 +15,9 @@
 #define BILLION 1000000000
 
 sem_t sem_r, sem_w;
-struct timespec time_shared;
-char *buffer_shared;
+struct timespec time_shared, time_shared2;
+char *buffer_shared, *buffer_shared2;
+bool alternate = false;
 
 int64_t get_time()
 {
@@ -33,9 +34,14 @@ void *writer_thread(void *v)
 {
 	while (true) {
 		sem_wait(&sem_w);
-		printf("MONOTONIC_CLOCK: %010ld.%03ld s\n", time_shared.tv_sec, time_shared.tv_nsec / MILLION);
-		printf("%s\n", buffer_shared); // TODO: Use 2 buffers, alternating
-		// sem_post(&sem_r); // TODO: Remove this
+		if(!alternate) {
+			printf("MONOTONIC_CLOCK: %010ld.%03ld s\n", time_shared.tv_sec, time_shared.tv_nsec / MILLION);
+			printf("%s\n", buffer_shared);
+		} else {
+			printf("MONOTONIC_CLOCK: %010ld.%03ld s\n", time_shared2.tv_sec, time_shared2.tv_nsec / MILLION);
+			printf("%s\n", buffer_shared2);
+		}
+		sem_post(&sem_r);
 	}
 }
 
@@ -98,8 +104,10 @@ int main(int argc, char **argv)
 	const int record_size = 7;
 	const int record_max = 1000;
 	const int buf_size = record_max * record_size;
-	char buf[buf_size]; // TODO: Use 2 buffers, alternating
-	buffer_shared = buf; // TODO: Remove this
+	char buf[buf_size];
+	char buf2[buf_size];
+	buffer_shared = buf;
+	buffer_shared2 = buf2;
 	int cursor_position = 0;
 	char *portname = "/dev/ttyUSB0";
 	int fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC);
@@ -120,24 +128,36 @@ int main(int argc, char **argv)
 	// receive 25:  approx 100 uS per char transmit
 
 	sem_init(&sem_w, 0, 0);
-	sem_init(&sem_r, 0, 1); // TODO: remove this
+	sem_init(&sem_r, 0, 1);
 	pthread_create(&writer, NULL, writer_thread, NULL);
 
 	for (;;) {
 		clock_gettime(CLOCK_MONOTONIC, &time_shared);
 		// printf("MONOTONIC_CLOCK: %010ld.%03ld s\n", time.tv_sec, time.tv_nsec / MILLION);
-		for (cursor_position = 0; cursor_position < buf_size - record_size * 2; cursor_position += record_size) {
-			int bytes_read = 0;
-			while (bytes_read < record_size) {
-				// read up to 3rd_arg characters if ready to read
-				int n = read(fd, buf + cursor_position + bytes_read, record_size - bytes_read);
-				bytes_read += n;
+		if(alternate) {
+			for (cursor_position = 0; cursor_position < buf_size - record_size * 2; cursor_position += record_size) {
+				int bytes_read = 0;
+				while (bytes_read < record_size) {
+					// read up to 3rd_arg characters if ready to read
+					int n = read(fd, buf + cursor_position + bytes_read, record_size - bytes_read);
+					bytes_read += n;
+				}
 			}
+			buf[cursor_position] = '\0';
+		} else {
+			for (cursor_position = 0; cursor_position < buf_size - record_size * 2; cursor_position += record_size) {
+				int bytes_read = 0;
+				while (bytes_read < record_size) {
+					// read up to 3rd_arg characters if ready to read
+					int n = read(fd, buf2 + cursor_position + bytes_read, record_size - bytes_read);
+					bytes_read += n;
+				}
+			}
+			buf2[cursor_position] = '\0';
 		}
-		buf[cursor_position] = '\0';
-		// sem_wait(&sem_r); // TODO: remove this
+		sem_wait(&sem_r);
+		alternate = !alternate;
 		sem_post(&sem_w);
-		printf("%s\n", buf);
 	}
 
 	return 0;
