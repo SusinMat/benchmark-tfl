@@ -104,7 +104,8 @@ int main(int argc, char **argv)
 		for (cursor_position = 0; cursor_position < buf_size - record_size * 2; cursor_position += record_size) {
 			int bytes_read = 0;
 			while (bytes_read < record_size) {
-				int n = read(fd, buf + cursor_position + bytes_read, record_size - bytes_read);       // read up to 3rd_arg characters if ready to read
+				// read up to 3rd_arg characters if ready to read
+				int n = read(fd, buf + cursor_position + bytes_read, record_size - bytes_read);
 				bytes_read += n;
 			}
 		}
@@ -114,3 +115,5 @@ int main(int argc, char **argv)
 
 	return 0;
 }
+
+// vim: set ts=8 sts=8 sw=8 noet :
