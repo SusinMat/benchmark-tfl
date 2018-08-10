@@ -11,8 +11,9 @@
 #include <time.h>
 #include <unistd.h>
 
-#define MILLION 1000000
-#define BILLION 1000000000
+#define THOUSAND 1000
+#define MILLION  1000000
+#define BILLION  1000000000
 
 sem_t sem_r, sem_w;
 struct timespec time_shared, time_shared2;
@@ -25,7 +26,7 @@ int64_t get_time()
 	int64_t ms = 0;
 
 	clock_gettime(CLOCK_MONOTONIC, &time);
-	ms = time.tv_sec * 1000 + time.tv_nsec / MILLION;
+	ms = time.tv_sec * THOUSAND + time.tv_nsec / MILLION;
 
 	return ms;
 }
