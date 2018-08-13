@@ -41,7 +41,7 @@ void *writer_thread(void *v)
 	}
 }
 
-int set_interface_attribs(int fd, int speed, int parity)
+int set_interface_attribs(int fd, int speed, unsigned parity)
 {
 	struct termios tty;
 	if (tcgetattr(fd, &tty) != 0) {
@@ -59,7 +59,7 @@ int set_interface_attribs(int fd, int speed, int parity)
 	tty.c_lflag = 0;            // no signaling chars , no echo,
 	                            // no canonical processing
 	tty.c_oflag = 0;            // no remapping, no delays
-	tty.c_cc[VMIN] = 0;	    // read doesn't block
+	tty.c_cc[VMIN] = 0;	        // read doesn't block
 	tty.c_cc[VTIME] = 0;        // 0.5 seconds read timeout
 
 	tty.c_iflag &= ~(IXON | IXOFF | IXANY); // shut off xon/xoff ctrl
