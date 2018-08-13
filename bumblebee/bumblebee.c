@@ -95,11 +95,21 @@ void set_blocking(int fd, bool should_block)
 		printf("error %d setting term attributes\n", errno);
 }
 
+void sync_on_comma(int fd)
+{
+	char buf[2] = {'\r', '\0'};
+
+	do {
+		read(fd, buf, 1);
+	} while (buf[0] != ',');
+	return;
+}
+
 int main(int argc, char **argv)
 {
-	const int record_size = 7;
+	const int record_size = 6;
 	const int record_max = 1000;
-	const int buf_size = record_max * record_size;
+	const int buf_size = (record_max + 1) * record_size;
 	char buf[2][buf_size];
 	buffer_shared[0] = buf[0];
 	buffer_shared[1] = buf[1];
@@ -126,9 +136,11 @@ int main(int argc, char **argv)
 	sem_init(&sem_r, 0, 1);
 	pthread_create(&writer, NULL, writer_thread, NULL);
 
+	sync_on_comma(fd);
+
 	for (;;) {
 		clock_gettime(CLOCK_MONOTONIC, &time_shared[alternate]);
-		for (cursor_position = 0; cursor_position < buf_size - record_size * 2; cursor_position += record_size) {
+		for (cursor_position = 0; cursor_position < buf_size - record_size; cursor_position += record_size) {
 			int bytes_read = 0;
 			while (bytes_read < record_size) {
 				// read up to 3rd_arg characters if ready to read
@@ -136,7 +148,7 @@ int main(int argc, char **argv)
 				bytes_read += n;
 			}
 		}
-		buffer_shared[alternate][cursor_position] = '\0';
+		buffer_shared[alternate][cursor_position - record_size - 1] = '\0';
 		sem_wait(&sem_r);
 		alternate = !alternate;
 		sem_post(&sem_w);
