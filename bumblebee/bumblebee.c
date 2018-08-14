@@ -98,19 +98,18 @@ void set_blocking(int fd, bool should_block)
 
 void sync_on_comma(int fd)
 {
-	char buf[2] = {'\r', '\0'};
+	char buf[2] = "\r";
 
 	do {
 		read(fd, buf, 1);
 	} while (buf[0] != ',');
-	return;
 }
 
 int main(int argc, char **argv)
 {
 	const int record_size = 6;
 	const int record_max = 1000;
-	const int buf_size = (record_max + 1) * record_size;
+	const int buf_size = (record_max + 2) * record_size;
 	char buf[2][buf_size];
 	buffer_shared[0] = buf[0];
 	buffer_shared[1] = buf[1];
