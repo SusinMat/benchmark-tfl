@@ -18,7 +18,6 @@
 sem_t sem_r, sem_w;
 struct timespec time_shared[2];
 char *buffer_shared[2];
-bool alternate = false;
 
 int64_t get_time()
 {
@@ -33,10 +32,12 @@ int64_t get_time()
 
 void *writer_thread(void *v)
 {
+	bool alternate = false;
 	for (;;) {
 		sem_wait(&sem_w);
 		printf("MONOTONIC_CLOCK: %010ld.%03ld s\n", time_shared[alternate].tv_sec, time_shared[alternate].tv_nsec / MILLION);
 		printf("%s\n", buffer_shared[alternate]);
+		alternate = !alternate;
 		sem_post(&sem_r);
 	}
 }
@@ -113,6 +114,7 @@ int main(int argc, char **argv)
 	char buf[2][buf_size];
 	buffer_shared[0] = buf[0];
 	buffer_shared[1] = buf[1];
+	bool alternate = false;
 	int cursor_position = 0;
 	char *portname = "/dev/ttyUSB0";
 	int fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC);
