@@ -19,23 +19,12 @@ sem_t sem_r, sem_w;
 struct timespec time_shared[2];
 char *buffer_shared[2];
 
-int64_t get_time()
-{
-	struct timespec time;
-	int64_t ms = 0;
-
-	clock_gettime(CLOCK_MONOTONIC, &time);
-	ms = time.tv_sec * THOUSAND + time.tv_nsec / MILLION;
-
-	return ms;
-}
-
 void *writer_thread(void *v)
 {
 	bool alternate = false;
 	for (;;) {
 		sem_wait(&sem_w);
-		printf("MONOTONIC_CLOCK: %010ld.%03ld s\n", time_shared[alternate].tv_sec, time_shared[alternate].tv_nsec / MILLION);
+		printf("CLOCK: %010ld.%03ld s\n", time_shared[alternate].tv_sec, time_shared[alternate].tv_nsec / MILLION);
 		printf("%s\n", buffer_shared[alternate]);
 		alternate = !alternate;
 		sem_post(&sem_r);
@@ -140,7 +129,7 @@ int main(int argc, char **argv)
 	sync_on_comma(fd);
 
 	for (;;) {
-		clock_gettime(CLOCK_MONOTONIC, &time_shared[alternate]);
+		clock_gettime(CLOCK_REALTIME, &time_shared[alternate]);
 		for (cursor_position = 0; cursor_position < buf_size - record_size; cursor_position += record_size) {
 			int bytes_read = 0;
 			while (bytes_read < record_size) {
