@@ -100,7 +100,9 @@ void sig_handler(int signo)
 {
 	if (signo == SIGTERM) {
 		done = 1;
-	} else if (signo == SIGINT) {
+	}
+
+	if (signo == SIGINT) {
 		done = 1;
 	}
 }
@@ -160,7 +162,7 @@ int main(int argc, char **argv)
 
 	sem_post(&sem_w);
 	pthread_join(writer, NULL);
-	printf("DEBUG -- finishing main thread after sigterm\n");
+	printf("DEBUG -- finishing main thread after SIGTERM\n");
 
 	return 0;
 }
