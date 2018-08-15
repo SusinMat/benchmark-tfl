@@ -97,7 +97,7 @@ int main(int argc, char **argv)
 {
 	const int record_size = 6;
 	const int record_max = 2000;
-	const int buf_size = (record_max + 2) * record_size;
+	const int buf_size = (record_max + 1) * record_size;
 	char buf[2][buf_size];
 	buffer_shared[0] = buf[0];
 	buffer_shared[1] = buf[1];
@@ -136,7 +136,7 @@ int main(int argc, char **argv)
 				bytes_read += n;
 			}
 		}
-		buffer_shared[alternate][cursor_position - record_size - 1] = '\0';
+		buffer_shared[alternate][cursor_position - 1] = '\0';
 		alternate = !alternate;
 		sem_post(&sem_w);
 	}
