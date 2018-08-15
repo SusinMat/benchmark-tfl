@@ -47,6 +47,7 @@ if __name__ == "__main__":
         timestamp = s_to_ms(clock_pattern.match(clock).group("clock"))
         readings = [float(r) for r in readings.split(",")]
         timestamp_offset = timestamp - previous_timestamp
+        # print("Readings: " + str(len(readings)))
         print(str(timestamp) + " - " + str(previous_timestamp) + " = " + str(timestamp_offset)) # typically 1~2 ms
         # power += [float('NaN') for i in range(len(readings) + timestamp_offset)]
         power += [voltage * r for r in readings]
