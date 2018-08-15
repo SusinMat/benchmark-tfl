@@ -60,8 +60,8 @@ void display_usage() {
               << "\n";
 }
 
-double get_us(struct timeval t) {
-    return (t.tv_sec * 1000000 + t.tv_usec);
+double get_micro_s(struct timespec t) {
+    return (t.tv_sec * 1000000 + t.tv_nsec/1000);
 }
 
 bool ReadLabelsFile(const std::string& file_name,
@@ -199,13 +199,13 @@ void RunInference(Settings &s, std::string input_img_name) {
             exit(-1);
     }
 
-    struct timeval start_time, stop_time;
-    gettimeofday(&start_time, NULL);
+    struct timespec start_time, stop_time;
+    clock_gettime(CLOCK_REALTIME, &start_time);
     TfLiteStatus status;
     for (int i = 0; i < s.loop_count; i++) {
         status = interpreter->Invoke();
     }
-    gettimeofday(&stop_time, NULL);
+    clock_gettime(CLOCK_REALTIME, &stop_time);
     if (s.verbose) {
         std::cout << "Invoked \n";
     }
@@ -264,7 +264,7 @@ void RunInference(Settings &s, std::string input_img_name) {
     std::cout << std::endl;
 
     std::cout << "time: "
-              << (get_us(stop_time) - get_us(start_time)) / (s.loop_count * 1000)
+              << (get_micro_s(stop_time) - get_micro_s(start_time)) / (s.loop_count * 1000)
               << " ms \n";
 }
 
