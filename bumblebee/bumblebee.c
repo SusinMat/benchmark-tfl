@@ -31,6 +31,7 @@ void *writer_thread(void *v)
 		alternate = !alternate;
 	}
 	printf("DEBUG -- finishing writer thread after a SIGTERM\n");
+	return NULL;
 }
 
 int set_interface_attribs(int fd, int speed, unsigned parity)
@@ -126,6 +127,7 @@ int main(int argc, char **argv)
 	memset(&action, 0, sizeof(action));
 	action.sa_handler = sig_handler;
 	sigaction(SIGTERM, &action, NULL);
+	sigaction(SIGINT, &action, NULL);
 
 	// printf("      This      is\n""<B><U><M><B><L><E><B><E><E>\n");
 	if (fd < 0) {
