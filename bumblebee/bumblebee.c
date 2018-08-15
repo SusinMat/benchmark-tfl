@@ -10,6 +10,7 @@
 #include <termios.h>
 #include <time.h>
 #include <unistd.h>
+#include <signal.h>
 
 #define THOUSAND 1000
 #define MILLION  1000000
@@ -18,16 +19,19 @@
 sem_t sem_w;
 struct timespec time_shared[2];
 char *buffer_shared[2];
+volatile sig_atomic_t done = 0;
 
 void *writer_thread(void *v)
 {
 	bool alternate = false;
-	for (;;) {
+	while (!done) {
 		sem_wait(&sem_w);
 		printf("CLOCK: %010ld.%03ld s\n", time_shared[alternate].tv_sec, time_shared[alternate].tv_nsec / MILLION);
 		printf("%s\n", buffer_shared[alternate]);
 		alternate = !alternate;
 	}
+	printf("DEBUG -- finishing writer thread after a SIGTERM\n");
+	return NULL;
 }
 
 int set_interface_attribs(int fd, int speed, unsigned parity)
@@ -93,6 +97,17 @@ void sync_on_comma(int fd)
 	} while (buf[0] != ',');
 }
 
+void sig_handler(int signo)
+{
+	if (signo == SIGTERM) {
+		done = 1;
+	}
+
+	if (signo == SIGINT) {
+		done = 1;
+	}
+}
+
 int main(int argc, char **argv)
 {
 	const int record_size = 6;
@@ -106,7 +121,13 @@ int main(int argc, char **argv)
 	char *portname = "/dev/ttyUSB0";
 	int fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC);
 	// struct timespec time;
+	struct sigaction action;
 	pthread_t writer;
+
+	memset(&action, 0, sizeof(action));
+	action.sa_handler = sig_handler;
+	sigaction(SIGTERM, &action, NULL);
+	sigaction(SIGINT, &action, NULL);
 
 	// printf("      This      is\n""<B><U><M><B><L><E><B><E><E>\n");
 	if (fd < 0) {
@@ -126,7 +147,7 @@ int main(int argc, char **argv)
 
 	sync_on_comma(fd);
 
-	for (;;) {
+	while (!done) {
 		clock_gettime(CLOCK_REALTIME, &time_shared[alternate]);
 		for (cursor_position = 0; cursor_position < buf_size - record_size; cursor_position += record_size) {
 			int bytes_read = 0;
@@ -140,6 +161,10 @@ int main(int argc, char **argv)
 		alternate = !alternate;
 		sem_post(&sem_w);
 	}
+
+	sem_post(&sem_w);
+	pthread_join(writer, NULL);
+	printf("DEBUG -- finishing main thread after SIGTERM\n");
 
 	return 0;
 }
