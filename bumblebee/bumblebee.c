@@ -15,7 +15,7 @@
 #define MILLION  1000000
 #define BILLION  1000000000
 
-sem_t sem_r, sem_w;
+sem_t sem_w;
 struct timespec time_shared[2];
 char *buffer_shared[2];
 
@@ -27,7 +27,6 @@ void *writer_thread(void *v)
 		printf("CLOCK: %010ld.%03ld s\n", time_shared[alternate].tv_sec, time_shared[alternate].tv_nsec / MILLION);
 		printf("%s\n", buffer_shared[alternate]);
 		alternate = !alternate;
-		sem_post(&sem_r);
 	}
 }
 
@@ -97,7 +96,7 @@ void sync_on_comma(int fd)
 int main(int argc, char **argv)
 {
 	const int record_size = 6;
-	const int record_max = 1000;
+	const int record_max = 2000;
 	const int buf_size = (record_max + 2) * record_size;
 	char buf[2][buf_size];
 	buffer_shared[0] = buf[0];
@@ -123,7 +122,6 @@ int main(int argc, char **argv)
 	// receive 25:  approx 100 uS per char transmit
 
 	sem_init(&sem_w, 0, 0);
-	sem_init(&sem_r, 0, 1);
 	pthread_create(&writer, NULL, writer_thread, NULL);
 
 	sync_on_comma(fd);
@@ -139,7 +137,6 @@ int main(int argc, char **argv)
 			}
 		}
 		buffer_shared[alternate][cursor_position - record_size - 1] = '\0';
-		sem_wait(&sem_r);
 		alternate = !alternate;
 		sem_post(&sem_w);
 	}
