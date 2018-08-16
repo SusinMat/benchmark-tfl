@@ -15,7 +15,7 @@ import tflenergy
 
 if __name__ == "__main__":
     print('starting bumblebee')
-    bumblebee = Popen(["sdb", "shell", "./bumblebee", ">", "energy_output.txt"])
+    bumblebee = Popen("sdb shell './bumblebee > energy_output.txt'", shell="/bin/bash")
 
     sleep(5)
 
