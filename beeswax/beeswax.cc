@@ -270,8 +270,9 @@ void RunInference(Settings &s, std::string input_img_name) {
               << (get_micro_s(stop_time) - get_micro_s(start_time)) / (s.loop_count * 1000)
               << " ms \n";
 
-    std::cout << "start-end: " << start_time.tv_sec << "." << start_time.tv_nsec/1000000 << " "
-                              << stop_time.tv_sec << "." << stop_time.tv_nsec/1000000 << std::endl;
+    std::cout << "start-end: "
+			  << get_micro_s(start_time) << " " << get_micro_s(stop_time) << "\n"
+
 }
 
 
