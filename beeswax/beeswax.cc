@@ -85,6 +85,7 @@ bool ReadLabelsFile(const std::string& file_name,
     return true;
 }
 
+
 void RunInference(Settings &s, std::string input_img_name) {
     if (s.model_name.empty()) {
         std::cerr << "Model name not set\n";
@@ -248,6 +249,8 @@ void RunInference(Settings &s, std::string input_img_name) {
     std::cout << std::endl;
     std::cout << "image-path: " << input_img_name << std::endl;
 
+    std::cout << "loops: " << s.loop_count << std::endl;
+
     std::cout << "top-5:";
     for (auto it = top_results.begin(); it != top_results.end(); it++) {
         const float confidence = it->first;
@@ -266,6 +269,9 @@ void RunInference(Settings &s, std::string input_img_name) {
     std::cout << "time: "
               << (get_micro_s(stop_time) - get_micro_s(start_time)) / (s.loop_count * 1000)
               << " ms \n";
+
+    std::cout << "start-end: " << start_time.tv_sec << "." << start_time.tv_nsec/1000000 << " "
+                              << stop_time.tv_sec << "." << stop_time.tv_nsec/1000000 << std::endl;
 }
 
 
