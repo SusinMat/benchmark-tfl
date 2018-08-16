@@ -78,34 +78,17 @@ def parse_file(filename, start_time=None, stop_time=None):
             timestamps.append(i_clock+j)
             readings.append(float(reading))
 
-    # start_time = 1469669599000
-    # stop_time = 1469669602000
-
     start_index = 0
     stop_index = 0
     # Find clocks closest to start and end
     if start_time is not None and stop_time is not None:
         (start_index, stop_index) = find_start_end(timestamps, start_time, stop_time)
 
-    # print(start_index, stop_index)
-
-    # print(timestamps[0:10])
-
     for i in range(start_index, stop_index):
         energy_spent += (voltage * readings[i])/1000.0
 
-    #     timestamp = s_to_ms(clock_pattern.match(clock).group("clock"))
-    #     timestamp_offset = timestamp - previous_timestamp
-    #     previous_timestamp = timestamp + len(readings)
-    #     # print("Readings: " + str(len(readings)))
-    #     # print(str(timestamp) + " - " + str(previous_timestamp) + " = " + str(timestamp_offset)) # typically 1~2 ms
-    #     # power += [float('NaN') for i in range(len(readings) + timestamp_offset)]
-    #     power += [voltage * float(r) for r in readings.split(",")]
-
-    # for i in range(len(power)):
-    #     print(str(starting_timestamp + i) + " ms, " + "%.03f" % (power[i]) + " W")
-
     print("Energy spent: ", energy_spent, " J")
+    print("Average power:", float(energy_spent)/(timestamps[stop_time]-timestamps[start_time]))
 
 
 if __name__ == "__main__":
