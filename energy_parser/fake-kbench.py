@@ -31,6 +31,7 @@ if __name__ == "__main__":
 
     print('sending HUP signal to bumblebee')
     bumblebee.send_signal(signal.SIGHUP)
+    subprocess.Popen("sdb shell pkill -HUP bumblebee", shell=True)
 
     time.sleep(10)
 
