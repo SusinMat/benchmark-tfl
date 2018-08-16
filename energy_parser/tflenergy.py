@@ -10,7 +10,23 @@ def s_to_ms(s):
     return int("".join(s.split(".")))
 
 
-def parse_file(filename, start_time=None, end_time=None):
+def find_start_end(timestamps, start_time, end_time):
+    start_index = end_index = 0
+    for index,time in enumerate(timestamps):
+        if time > start_time:
+            start_index = index - 1
+            break
+
+    for index,time in enumerate(reversed(timestamps)):
+        if time < end_time:
+            end_index = (len(timestamps) - 1 - index) + 1
+            break
+
+
+    return (start_index, end_index)
+
+
+def parse_file(filename, start_time=None, stop_time=None):
 
     with open(filename, 'r') as f:
         # Strip the last character of each line, typically a \n
@@ -46,8 +62,7 @@ def parse_file(filename, start_time=None, end_time=None):
     starting_timestamp = s_to_ms(match.group("clock"))
     previous_timestamp = starting_timestamp
     voltage = 5.0
-    power = []
-
+    energy_spent = 0
 
     timestamps = []
     readings = []
@@ -55,20 +70,28 @@ def parse_file(filename, start_time=None, end_time=None):
         # clock line
         i_clock = s_to_ms(clock_pattern.match(input_file[i]).group("clock"))
         # energy readings line
-        i_readings = input_file[i + 1]
+        i_reading = input_file[i + 1]
+        i_reading = i_reading.split(",")
 
-        for j, reading in enumerate(i_readings):
-            timestamps.append(clock+j)
+        for j, reading in enumerate(i_reading):
+            timestamps.append(i_clock+j)
             readings.append(float(reading))
 
+    # start_time = 1469669599000
+    # stop_time = 1469669602000
 
+    start_index = 0
+    stop_index = 0
     # Find clocks closest to start and end
-    if start_time is not None and end_time is not None:
-        (start_index, stop_index) = find_start_end(input_file, start_time, end_time)
+    if start_time is not None and stop_time is not None:
+        (start_index, stop_index) = find_start_end(timestamps, start_time, stop_time)
 
+    print(start_index, stop_index)
 
-    # for i in range(start_index, stop_index):
-    #     power += voltage * readings[i]
+    print(timestamps[0:10])
+
+    for i in range(start_index, stop_index):
+        energy_spent += (voltage * readings[i])/1000.0
 
     #     timestamp = s_to_ms(clock_pattern.match(clock).group("clock"))
     #     timestamp_offset = timestamp - previous_timestamp
@@ -80,8 +103,8 @@ def parse_file(filename, start_time=None, end_time=None):
 
     # for i in range(len(power)):
     #     print(str(starting_timestamp + i) + " ms, " + "%.03f" % (power[i]) + " W")
-    energy_spent = sum(power)/1000
-    print("Power spent: ", energy_spent, " W")
+
+    print("Energy spent: ", energy_spent, " J")
 
 
 if __name__ == "__main__":
