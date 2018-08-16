@@ -14,12 +14,12 @@ import tflenergy
 #   model, images and labels are inside the device
 
 if __name__ == "__main__":
-    print('start bumblebee')
+    print('starting bumblebee')
     bumblebee = Popen(["sdb", "shell", "./bumblebee", ">", "energy_output.txt"])
 
     sleep(5)
 
-    print('start beeswax')
+    print('starting beeswax')
     beeswax = Popen(["sdb", "shell", "./beeswax", "-i", "grace_hopper.bmp"], stdout=PIPE)
     # stdout_beeswax, stderr_besswax = beeswax.communicate()
     print('finished beeswax')
@@ -29,12 +29,12 @@ if __name__ == "__main__":
 
     sleep(5)
 
-    print('SIGHUP bumblebee')
+    print('sending HUP signal to bumblebee')
     bumblebee.send_signal(signal.SIGHUP)
 
     sleep(10)
 
-    print('pull out bumblebee')
+    print('pulling out bumblebee output')
     call(["sdb", "pull", "energy_output.txt", "energy_output.txt"])
 
     delimiter_regex = r"start-end: (?P<start>\d+\.?\d*) (?P<stop>\d+\.?\d*)"
@@ -52,8 +52,8 @@ if __name__ == "__main__":
             match = delimiter_pattern.match(output_line.decode('utf-8'))
 
             if match:
-                start_timestamp = int(float(match.group("start"))*1000)
-                stop_timestamp = int(float(match.group("stop"))*1000)
+                start_timestamp = int(float(match.group("start")) * 1000)
+                stop_timestamp = int(float(match.group("stop")) * 1000)
                 break
             else:
                 print(output_line.decode('utf-8'))

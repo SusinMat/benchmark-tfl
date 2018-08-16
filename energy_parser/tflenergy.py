@@ -85,7 +85,7 @@ def parse_file(filename, start_time=None, stop_time=None):
         (start_index, stop_index) = find_start_end(timestamps, start_time, stop_time)
 
     for i in range(start_index, stop_index):
-        energy_spent += (voltage * readings[i])/1000.0
+        energy_spent += (voltage * readings[i]) / 1000.0
 
     print("Energy spent: " + str(energy_spent) + " J")
     print("Average power: " + str((1000 * float(energy_spent)) / (timestamps[stop_index] - timestamps[start_index])) + " W")
