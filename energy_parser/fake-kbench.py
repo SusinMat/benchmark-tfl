@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from subprocess import Popen, call, PIPE
-from time import sleep, clock_gettime
+import subprocess
+import time
 import signal
 import re
 
@@ -15,27 +15,27 @@ import tflenergy
 
 if __name__ == "__main__":
     print('starting bumblebee')
-    bumblebee = Popen("sdb shell './bumblebee > energy_output.txt'", shell=True, executable="/bin/bash")
+    bumblebee = subprocess.Popen("sdb shell './bumblebee > energy_output.txt'", shell=True)
 
-    sleep(5)
+    time.sleep(5)
 
     print('starting beeswax')
-    beeswax = Popen(["sdb", "shell", "./beeswax", "-i", "grace_hopper.bmp"], stdout=PIPE)
+    beeswax = subprocess.Popen(["sdb", "shell", "./beeswax", "-i", "grace_hopper.bmp"], stdout=subprocess.PIPE)
     # stdout_beeswax, stderr_besswax = beeswax.communicate()
     print('finished beeswax')
 
     # read start time in beeswax stdout
     # read end time in beeswax stdout
 
-    sleep(5)
+    time.sleep(5)
 
     print('sending HUP signal to bumblebee')
     bumblebee.send_signal(signal.SIGHUP)
 
-    sleep(10)
+    time.sleep(10)
 
     print('pulling out bumblebee output')
-    call(["sdb", "pull", "energy_output.txt", "energy_output.txt"])
+    subprocess.call(["sdb", "pull", "energy_output.txt", "energy_output.txt"])
 
     delimiter_regex = r"start-end: (?P<start>\d+\.?\d*) (?P<stop>\d+\.?\d*)"
     delimiter_pattern = re.compile(delimiter_regex)
