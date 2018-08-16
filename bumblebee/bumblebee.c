@@ -28,7 +28,7 @@ void *writer_thread(void *v)
 		sem_wait(&sem_w);
 		printf("CLOCK: %010ld.%03ld s\n", time_shared[alternate].tv_sec, time_shared[alternate].tv_nsec / MILLION);
 		printf("%s\n", buffer_shared[alternate]);
-		printf("%d\n", (int)strlen(buffer_shared[alternate]));
+		fprintf(stderr, "String length: %d. Last character: %c\n", (int)strlen(buffer_shared[alternate]), buffer_shared[alternate][strlen(buffer_shared[alternate]) - 1]);
 		alternate = !alternate;
 	}
 	// fprintf(stderr, "DEBUG -- finishing writer thread after a SIGTERM\n");
