@@ -13,12 +13,13 @@ def s_to_ms(s):
 def find_start_end(timestamps, start_time, end_time):
     start_index = end_index = 0
     for index,time in enumerate(timestamps):
-        if time > start_time:
+        if start_time < time:
+            print("TIMESTAMP", time, "Start", start_time)
             start_index = index - 1
             break
 
     for index,time in enumerate(reversed(timestamps)):
-        if time < end_time:
+        if end_time > time:
             end_index = (len(timestamps) - 1 - index) + 1
             break
 
@@ -86,9 +87,9 @@ def parse_file(filename, start_time=None, stop_time=None):
     if start_time is not None and stop_time is not None:
         (start_index, stop_index) = find_start_end(timestamps, start_time, stop_time)
 
-    print(start_index, stop_index)
+    # print(start_index, stop_index)
 
-    print(timestamps[0:10])
+    # print(timestamps[0:10])
 
     for i in range(start_index, stop_index):
         energy_spent += (voltage * readings[i])/1000.0

@@ -21,18 +21,18 @@ if __name__ == "__main__":
 
     print('start beeswax')
     beeswax = Popen(["sdb", "shell", "./beeswax", "-i", "grace_hopper.bmp"], stdout=PIPE)
-    stdout_beeswax, stderr_besswax = beeswax.communicate()
+    # stdout_beeswax, stderr_besswax = beeswax.communicate()
     print('finished beeswax')
 
     # read start time in beeswax stdout
     # read end time in beeswax stdout
 
-    sleep(1)
+    sleep(5)
 
     print('kill bumblebee')
     bumblebee.send_signal(signal.SIGINT)
 
-    sleep(5)
+    sleep(10)
 
     print('pull out bumblebee')
     call(["sdb", "pull", "energy_output.txt", "energy_output.txt"])
@@ -44,16 +44,32 @@ if __name__ == "__main__":
     start_timestamp = None
     stop_timestamp = None
 
-    print(stdout_beeswax)
+    # print("\n\nSTDOUT-BEESWAX", stdout_beeswax)
 
-    for output_line in beeswax.stdout:
-        match = delimiter_pattern.match(output_line)
+    while True:
+        output_line = beeswax.stdout.readline()
+        if output_line != '':
+            match = delimiter_pattern.match(output_line.decode('utf-8'))
 
-        if match:
-            start_timestamp = float(match.group("start"))*1000
-            stop_timestamp = float(match.group("stop"))*1000
+            if match:
+                start_timestamp = int(float(match.group("start"))*1000)
+                stop_timestamp = int(float(match.group("stop"))*1000)
+                break
+
+        else:
             break
+
+
+    # for output_line in stdout_beeswax.split("\r\n"):
+    #     print("OUTPUT-LINE -- ", output_line)
+    #     match = delimiter_pattern.match(output_line)
+
+    #     if match:
+    #         start_timestamp = float(match.group("start"))*1000
+    #         stop_timestamp = float(match.group("stop"))*1000
+    #         break
 
     # call parser
     print("call parser")
+    print(start_timestamp, stop_timestamp)
     tflenergy.parse_file("energy_output.txt", start_timestamp, stop_timestamp)
