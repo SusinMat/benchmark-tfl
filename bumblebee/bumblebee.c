@@ -107,6 +107,9 @@ void sig_handler(int signo)
 		case SIGINT:
 			done = true;
 			break;
+		case SIGHUP:
+			done = true;
+			break;
 		default:
 			break;
 	}
@@ -115,7 +118,7 @@ void sig_handler(int signo)
 int main(int argc, char **argv)
 {
 	const int record_size = 6;
-	const int record_max = 500;
+	const int record_max = 5000;
 	const int buf_size = (record_max + 1) * record_size;
 	char buf[2][buf_size];
 	buffer_shared[0] = buf[0];
@@ -130,8 +133,7 @@ int main(int argc, char **argv)
 
 	memset(&action, 0, sizeof(action));
 	action.sa_handler = sig_handler;
-	sigaction(SIGTERM, &action, NULL);
-	sigaction(SIGINT, &action, NULL);
+	// sigaction(SIGHUP, &action, NULL);
 
 	// printf("      This      is\n""<B><U><M><B><L><E><B><E><E>\n");
 	if (fd < 0) {
