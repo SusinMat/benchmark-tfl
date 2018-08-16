@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from subprocess import Popen, call
+from subprocess import Popen, call, PIPE
 from time import sleep, clock_gettime
 import signal
 import re
@@ -14,23 +14,28 @@ import tflenergy
 #   model, images and labels are inside the device
 
 if __name__ == "__main__":
+    print('start bumblebee')
     bumblebee = Popen(["sdb", "shell", "./bumblebee", ">", "energy_output.txt"])
 
     sleep(5)
 
-    beeswax = Popen("sdb", "shell", "./beeswax", "-i", "grace_hopper.bmp")
+    print('start beeswax')
+    beeswax = Popen(["sdb", "shell", "./beeswax", "-i", "grace_hopper.bmp"], stdout=PIPE)
     stdout_beeswax, stderr_besswax = beeswax.communicate()
+    print('finished beeswax')
 
     # read start time in beeswax stdout
     # read end time in beeswax stdout
 
     sleep(1)
 
+    print('kill bumblebee')
     bumblebee.send_signal(signal.SIGINT)
 
     sleep(5)
 
-    call("sdb", "pull", "energy_output.txt", "energy_output.txt")
+    print('pull out bumblebee')
+    call(["sdb", "pull", "energy_output.txt", "energy_output.txt"])
 
     delimiter_regex = r"start-end: (?P<start>\d+\.?\d*) (?P<stop>\d+\.?\d*)"
     delimiter_pattern = re.compile(delimiter_regex)
@@ -39,8 +44,10 @@ if __name__ == "__main__":
     start_timestamp = None
     stop_timestamp = None
 
-    for output_line in stdout_beeswax:
-        match = delimiter_pattern.match(output_line):
+    print(stdout_beeswax)
+
+    for output_line in beeswax.stdout:
+        match = delimiter_pattern.match(output_line)
 
         if match:
             start_timestamp = float(match.group("start"))*1000
@@ -48,4 +55,5 @@ if __name__ == "__main__":
             break
 
     # call parser
-    tflenergy.parse_file("energy_output.txt", start_time, end_time)
+    print("call parser")
+    tflenergy.parse_file("energy_output.txt", start_timestamp, stop_timestamp)
