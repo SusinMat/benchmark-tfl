@@ -19,7 +19,7 @@
 sem_t sem_w;
 struct timespec time_shared[2];
 char *buffer_shared[2];
-volatile sig_atomic_t done = 0;
+volatile sig_atomic_t done = false;
 
 void *writer_thread(void *v)
 {
@@ -28,9 +28,10 @@ void *writer_thread(void *v)
 		sem_wait(&sem_w);
 		printf("CLOCK: %010ld.%03ld s\n", time_shared[alternate].tv_sec, time_shared[alternate].tv_nsec / MILLION);
 		printf("%s\n", buffer_shared[alternate]);
+		printf("%d\n", (int)strlen(buffer_shared[alternate]));
 		alternate = !alternate;
 	}
-	printf("DEBUG -- finishing writer thread after a SIGTERM\n");
+	// fprintf(stderr, "DEBUG -- finishing writer thread after a SIGTERM\n");
 	return NULL;
 }
 
@@ -99,19 +100,22 @@ void sync_on_comma(int fd)
 
 void sig_handler(int signo)
 {
-	if (signo == SIGTERM) {
-		done = 1;
-	}
-
-	if (signo == SIGINT) {
-		done = 1;
+	switch (signo) {
+		case SIGTERM:
+			done = true;
+			break;
+		case SIGINT:
+			done = true;
+			break;
+		default:
+			break;
 	}
 }
 
 int main(int argc, char **argv)
 {
 	const int record_size = 6;
-	const int record_max = 2000;
+	const int record_max = 500;
 	const int buf_size = (record_max + 1) * record_size;
 	char buf[2][buf_size];
 	buffer_shared[0] = buf[0];
@@ -162,9 +166,9 @@ int main(int argc, char **argv)
 		sem_post(&sem_w);
 	}
 
-	sem_post(&sem_w);
+	// sem_post(&sem_w);
 	pthread_join(writer, NULL);
-	printf("DEBUG -- finishing main thread after SIGTERM\n");
+	// fprintf(stderr, "DEBUG -- finishing main thread after SIGTERM\n");
 
 	return 0;
 }
