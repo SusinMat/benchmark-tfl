@@ -48,23 +48,35 @@ def parse_file(filename, start_time=None, end_time=None):
     voltage = 5.0
     power = []
 
-    # Find clocks closest to start and end
-    if start_time is not None and end_time is not None:
-        find_start_end(input_file, start_time, end_time)
 
+    timestamps = []
+    readings = []
     for i in range(0, len(input_file), 2):
         # clock line
-        clock = input_file[i]
+        i_clock = s_to_ms(clock_pattern.match(input_file[i]).group("clock"))
         # energy readings line
-        readings = input_file[i + 1]
+        i_readings = input_file[i + 1]
 
-        timestamp = s_to_ms(clock_pattern.match(clock).group("clock"))
-        timestamp_offset = timestamp - previous_timestamp
-        previous_timestamp = timestamp + len(readings)
-        # print("Readings: " + str(len(readings)))
-        # print(str(timestamp) + " - " + str(previous_timestamp) + " = " + str(timestamp_offset)) # typically 1~2 ms
-        # power += [float('NaN') for i in range(len(readings) + timestamp_offset)]
-        power += [voltage * float(r) for r in readings.split(",")]
+        for j, reading in enumerate(i_readings):
+            timestamps.append(clock+j)
+            readings.append(float(reading))
+
+
+    # Find clocks closest to start and end
+    if start_time is not None and end_time is not None:
+        (start_index, stop_index) = find_start_end(input_file, start_time, end_time)
+
+
+    # for i in range(start_index, stop_index):
+    #     power += voltage * readings[i]
+
+    #     timestamp = s_to_ms(clock_pattern.match(clock).group("clock"))
+    #     timestamp_offset = timestamp - previous_timestamp
+    #     previous_timestamp = timestamp + len(readings)
+    #     # print("Readings: " + str(len(readings)))
+    #     # print(str(timestamp) + " - " + str(previous_timestamp) + " = " + str(timestamp_offset)) # typically 1~2 ms
+    #     # power += [float('NaN') for i in range(len(readings) + timestamp_offset)]
+    #     power += [voltage * float(r) for r in readings.split(",")]
 
     # for i in range(len(power)):
     #     print(str(starting_timestamp + i) + " ms, " + "%.03f" % (power[i]) + " W")
@@ -80,4 +92,3 @@ if __name__ == "__main__":
 
     filename = sys.argv[1]
     parse_file(filename)
-
