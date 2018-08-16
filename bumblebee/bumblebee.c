@@ -28,10 +28,10 @@ void *writer_thread(void *v)
 		sem_wait(&sem_w);
 		printf("CLOCK: %010ld.%03ld s\n", time_shared[alternate].tv_sec, time_shared[alternate].tv_nsec / MILLION);
 		printf("%s\n", buffer_shared[alternate]);
-		fprintf(stderr, "String length: %d. Last character: %c\n", (int)strlen(buffer_shared[alternate]), buffer_shared[alternate][strlen(buffer_shared[alternate]) - 1]);
+		// fprintf(stderr, "String length: %d. Last character: %c\n", (int)strlen(buffer_shared[alternate]), buffer_shared[alternate][strlen(buffer_shared[alternate]) - 1]);
 		alternate = !alternate;
 	}
-	// fprintf(stderr, "DEBUG -- finishing writer thread after a SIGTERM\n");
+
 	return NULL;
 }
 
@@ -98,23 +98,6 @@ void sync_on_comma(int fd)
 	} while (buf[0] != ',');
 }
 
-void sig_handler(int signo)
-{
-	switch (signo) {
-		case SIGTERM:
-			done = true;
-			break;
-		case SIGINT:
-			done = true;
-			break;
-		case SIGHUP:
-			done = true;
-			break;
-		default:
-			break;
-	}
-}
-
 int main(int argc, char **argv)
 {
 	const int record_size = 6;
@@ -127,13 +110,8 @@ int main(int argc, char **argv)
 	int cursor_position = 0;
 	char *portname = "/dev/ttyUSB0";
 	int fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC);
-	// struct timespec time;
 	struct sigaction action;
 	pthread_t writer;
-
-	memset(&action, 0, sizeof(action));
-	action.sa_handler = sig_handler;
-	// sigaction(SIGHUP, &action, NULL);
 
 	// printf("      This      is\n""<B><U><M><B><L><E><B><E><E>\n");
 	if (fd < 0) {
@@ -170,7 +148,6 @@ int main(int argc, char **argv)
 
 	// sem_post(&sem_w);
 	pthread_join(writer, NULL);
-	// fprintf(stderr, "DEBUG -- finishing main thread after SIGTERM\n");
 
 	return 0;
 }
