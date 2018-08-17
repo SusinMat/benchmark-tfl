@@ -63,5 +63,5 @@ if __name__ == "__main__":
 
     # call parser
     print("call parser")
-    print(start_timestamp, stop_timestamp)
+    print("Start time: " + str(start_timestamp) + "    Stop time: " +  str(stop_timestamp))
     parse_file("energy_output.txt", start_timestamp, stop_timestamp)
