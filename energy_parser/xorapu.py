@@ -57,7 +57,7 @@ if __name__ == "__main__":
                 stop_timestamp = int(float(match.group("stop")) * 1000)
                 break
             else:
-                print(output_line.decode('utf-8'))
+                print(output_line.decode('utf-8').rstrip())
         else:
             break
 
