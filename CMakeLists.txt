@@ -42,19 +42,9 @@ find_package(Threads REQUIRED)
 
 include_directories(
     "${TENSORFLOW_LITE_INSTALL_DIR}/include"
-    "${CMAKE_CURRENT_SOURCE_DIR}/label_image"
     "${CMAKE_CURRENT_SOURCE_DIR}/beeswax"
     "${CMAKE_CURRENT_SOURCE_DIR}/bumblebee"
     )
-
-# label_image
-file(GLOB LABEL_IMAGE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/label_image/*.cc")
-add_executable(label_image "${LABEL_IMAGE_SOURCES}")
-add_dependencies(label_image tensorflow_lite)
-target_link_libraries(label_image "${TENSORFLOW_LITE_INSTALL_DIR}/lib/libtensorflow-lite.a")
-
-target_link_libraries(label_image dl)
-target_link_libraries(label_image Threads::Threads)
 
 # beeswax
 file(GLOB BEESWAX_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/beeswax/*.cc")

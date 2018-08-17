@@ -33,6 +33,7 @@ limitations under the License.
 
 #include "tensorflow/contrib/lite/kernels/register.h"
 #include "tensorflow/contrib/lite/model.h"
+#include "tensorflow/contrib/lite/interpreter.h"
 #include "tensorflow/contrib/lite/optional_debug_tools.h"
 
 #include "bitmap_helpers.h"
@@ -85,14 +86,15 @@ bool ReadLabelsFile(const std::string& file_name,
     return true;
 }
 
-void RunInference(Settings &s, std::string input_img_name) {
+void PrepareInference(Settings &s,
+                  std::unique_ptr<tflite::FlatBufferModel> &model,
+                  std::unique_ptr<tflite::Interpreter> &interpreter) {
+
     if (s.model_name.empty()) {
         std::cerr << "Model name not set\n";
         exit(-1);
     }
 
-    std::unique_ptr<tflite::FlatBufferModel> model;
-    std::unique_ptr<tflite::Interpreter> interpreter;
     model = tflite::FlatBufferModel::BuildFromFile(s.model_name.c_str());
     if (!model) {
         std::cerr << "\nFailed to mmap model " << s.model_name << "\n";
@@ -140,21 +142,22 @@ void RunInference(Settings &s, std::string input_img_name) {
     if (s.number_of_threads != -1) {
         interpreter->SetNumThreads(s.number_of_threads);
     }
+}
 
-    // TODO: delete this, not being used
-    // Input image dimensions
-    int image_width    = 224;
-    int image_height   = 224;
-    int image_channels = 3;
+void RunInference(Settings &s,
+                  std::unique_ptr<tflite::Interpreter> &interpreter,
+                  std::string input_img_name) {
+
+
+    // Input image dimensions (set in read_bmp)
+    int image_width;
+    int image_height;
+    int image_channels;
 
     // TODO: read jpeg
     uint8_t* in = read_bmp(input_img_name, &image_width, &image_height,
                                                  &image_channels, &s);
 
-    int input = interpreter->inputs()[0];
-    if (s.verbose) {
-        std::cout << "input: " << input << "\n";
-    }
 
     const std::vector<int> inputs = interpreter->inputs();
     const std::vector<int> outputs = interpreter->outputs();
@@ -174,28 +177,32 @@ void RunInference(Settings &s, std::string input_img_name) {
 
     // get input dimension from the input tensor metadata
     // assuming one input only
-    TfLiteIntArray* dims = interpreter->tensor(input)->dims;
+    TfLiteIntArray* dims = interpreter->tensor(inputs[0])->dims;
+    if (s.verbose) {
+        std::cout << "input: " << inputs[0] << "\n";
+    }
+
     int wanted_height = dims->data[1];
     int wanted_width = dims->data[2];
     int wanted_channels = dims->data[3];
 
-    switch (interpreter->tensor(input)->type) {
+    switch (interpreter->tensor(inputs[0])->type) {
         case kTfLiteFloat32:
             s.input_floating = true;
             // TODO: resize jpeg and use float
-            resize<float>(interpreter->typed_tensor<float>(input), in, image_height,
+            resize<float>(interpreter->typed_tensor<float>(inputs[0]), in, image_height,
                           image_width, image_channels, wanted_height, wanted_width,
                           wanted_channels, &s);
             break;
         case kTfLiteUInt8:
             // TODO: resize jpeg and use int
-            resize<uint8_t>(interpreter->typed_tensor<uint8_t>(input), in,
+            resize<uint8_t>(interpreter->typed_tensor<uint8_t>(inputs[0]), in,
                             image_height, image_width, image_channels, wanted_height,
                             wanted_width, wanted_channels, &s);
             break;
         default:
             std::cerr << "cannot handle input type "
-                       << interpreter->tensor(input)->type << " yet";
+                       << interpreter->tensor(inputs[0])->type << " yet";
             exit(-1);
     }
 
@@ -233,7 +240,7 @@ void RunInference(Settings &s, std::string input_img_name) {
             break;
         default:
             std::cerr << "cannot handle output type "
-                       << interpreter->tensor(input)->type << " yet";
+                       << interpreter->tensor(inputs[0])->type << " yet";
             exit(-1);
     }
 
@@ -274,7 +281,12 @@ void RunInference(Settings &s, std::string input_img_name) {
 
 }
 
-void ParseSettings(Settings &s, std::string &input_img, std::string &input_img_list, int argc, char** argv) {
+
+void ParseSettings(Settings &s,
+                   std::string &input_img,
+                   std::string &input_img_list,
+                   int argc,
+                   char** argv) {
     int c;
 
     while (1) {
@@ -350,20 +362,24 @@ int Main(int argc, char** argv) {
     Settings s;
     std::string input_img;
     std::string input_img_list;
+    std::unique_ptr<tflite::FlatBufferModel> model;
+    std::unique_ptr<tflite::Interpreter> interpreter;
 
     ParseSettings(s, input_img, input_img_list, argc, argv);
 
+    PrepareInference(s, model, interpreter);
+
     // run inference with single image
     if(!input_img.empty()) {
-        RunInference(s, input_img);
-    // run inference read list of images from input_img_list
+        RunInference(s, interpreter, input_img);
+    // run inference with list of images from input_img_list
     } else if(!input_img_list.empty()){
         std::ifstream input_file(input_img_list);
         std::string line;
 
         if (input_file.is_open()) {
             while(std::getline(input_file, line)) {
-                RunInference(s, line);
+                RunInference(s, interpreter, line);
             }
             input_file.close();
         } else {

@@ -17,6 +17,10 @@ limitations under the License.
 #define BEESWAX_H
 
 #include <vector>
+#include <memory>
+
+#include "tensorflow/contrib/lite/interpreter.h"
+#include "tensorflow/contrib/lite/model.h"
 
 namespace beeswax {
 
@@ -43,14 +47,24 @@ double get_us(struct timeval t);
 // returns a vector of the strings. It pads with empty strings so the length
 // of the result is a multiple of 16, because our model expects that.
 bool ReadLabelsFile(const std::string &file_name,
-                   std::vector<std::string> *result,
-                   size_t *found_label_count);
-
-// Run inference with settings s on the img input_img_name
-void RunInference(Settings &s, std::string input_img_name) ;
+                    std::vector<std::string> *result,
+                    size_t *found_label_count);
 
 // Parse command line arguments
-void ParseSettings(Settings &s, std::string &input_img, std::string &input_img_list, int argc, char** argv);
+void ParseSettings(Settings &s,
+                   std::string &input_img,
+                   std::string &input_img_list,
+                   int argc,
+                   char** argv);
+
+void PrepareInference(Settings &s,
+                      std::unique_ptr<tflite::FlatBufferModel> &model,
+                      std::unique_ptr<tflite::Interpreter> &interpreter);
+
+// Run inference with settings s on the img input_img_name
+void RunInference(Settings &s,
+                  std::unique_ptr<tflite::Interpreter> &interpreter,
+                  std::string input_img_name);
 
 // Main function
 int Main(int argc, char** argv);
