@@ -1,33 +1,32 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import numpy
 import os
 import re
 import sys
+import matplotlib.pyplot as plt
 
 def s_to_ms(s):
     return int("".join(s.split(".")))
 
-
+# start_time and end_time: ms since epoch
 def find_start_end(timestamps, start_time, end_time):
     start_index = end_index = 0
-    for index,time in enumerate(timestamps):
+
+    for index,time in enumerate(timestamps, 1):
         if start_time < time:
-            print("TIMESTAMP", time, "Start", start_time)
             start_index = index - 1
             break
 
-    for index,time in enumerate(reversed(timestamps)):
+    for index,time in enumerate(reversed(timestamps), 1):
         if end_time > time:
             end_index = (len(timestamps) - 1 - index) + 1
             break
 
-
     return (start_index, end_index)
 
 
-def parse_file(filename, start_time=None, stop_time=None):
+def parse_file(filename, start_time=None, stop_time=None, save_graph=False):
 
     with open(filename, 'r') as f:
         # Strip the last character of each line, typically a \n
@@ -79,7 +78,8 @@ def parse_file(filename, start_time=None, stop_time=None):
             readings.append(float(reading))
 
     start_index = 0
-    stop_index = 0
+    stop_index = len(timestamps) - 1
+
     # Find clocks closest to start and end
     if start_time is not None and stop_time is not None:
         (start_index, stop_index) = find_start_end(timestamps, start_time, stop_time)
@@ -87,15 +87,24 @@ def parse_file(filename, start_time=None, stop_time=None):
     for i in range(start_index, stop_index):
         energy_spent += (voltage * readings[i]) / 1000.0
 
-    print("Energy spent: " + str(energy_spent) + " J")
-    print("Average power: " + str((1000 * float(energy_spent)) / (timestamps[stop_index] - timestamps[start_index])) + " W")
+    print("Energy spent: %.3f J" % energy_spent)
+    print("Average power: %.3f W" % ((1000.0 * energy_spent) / (timestamps[stop_index] - timestamps[start_index])))
 
+    if save_graph:
+        graph_timestamp = [t - timestamps[0] for t in timestamps]
+        graph_power = [voltage * r for r in readings]
+        plt.scatter(graph_timestamp,
+                    graph_power,
+                    s=2,
+                    alpha=0.5)
+        if start_time is not None and stop_time is not None:
+            plt.axvline(x=graph_timestamp[start_index], color='r', alpha=0.25)
+            plt.axvline(x=graph_timestamp[stop_index], color='r', alpha=0.25)
+        plt.xlabel('Time (ms)')
+        plt.ylabel('Power (W)')
+        plt.savefig('energy_graph.png', bbox_inches='tight')
 
 if __name__ == "__main__":
-
-    if len(sys.argv) != 2:
-        print("Usage: python3 tfenergy.py <input_file_name>")
-        exit(1)
 
     filename = sys.argv[1]
     parse_file(filename)
