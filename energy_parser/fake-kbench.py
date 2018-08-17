@@ -5,7 +5,7 @@ import time
 import signal
 import re
 
-import tflenergy
+from energy_parser import parse_file
 
 # Assuming:
 #   tunnel is created
@@ -64,4 +64,4 @@ if __name__ == "__main__":
     # call parser
     print("call parser")
     print(start_timestamp, stop_timestamp)
-    tflenergy.parse_file("energy_output.txt", start_timestamp, stop_timestamp)
+    parse_file("energy_output.txt", start_timestamp, stop_timestamp)
