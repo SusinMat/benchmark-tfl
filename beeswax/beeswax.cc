@@ -276,8 +276,11 @@ void RunInference(Settings &s,
               << (get_micro_s(stop_time) - get_micro_s(start_time)) / (s.loop_count * 1000)
               << " ms \n";
 
-    std::cout << "start-end: " << start_time.tv_sec << "." << start_time.tv_nsec/1000000 << " "
-            << stop_time.tv_sec << "." << stop_time.tv_nsec/1000000 << std::endl;
+
+	double start_time_d = start_time.tv_sec + start_time.tv_nsec/1000000000.0;
+	double stop_time_d = stop_time.tv_sec + stop_time.tv_nsec/1000000000.0;
+
+	printf("start-end: %.3f %.3f\n", start_time_d, stop_time_d);
 
 }
 
