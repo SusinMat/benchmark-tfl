@@ -26,7 +26,7 @@ def find_start_end(timestamps, start_time, end_time):
     return (start_index, end_index)
 
 
-def parse_file(filename, start_time=None, stop_time=None, save_graph=False):
+def parse_file(filename, start_time=None, stop_time=None, graph_name=None):
 
     with open(filename, 'r') as f:
         # Strip the last character of each line, typically a \n
@@ -84,13 +84,13 @@ def parse_file(filename, start_time=None, stop_time=None, save_graph=False):
     if start_time is not None and stop_time is not None:
         (start_index, stop_index) = find_start_end(timestamps, start_time, stop_time)
 
-    for i in range(start_index, stop_index):
+    for i in range(start_index, stop_index+1):
         energy_spent += (voltage * readings[i]) / 1000.0
 
     print("Energy spent: %.3f J" % energy_spent)
     print("Average power: %.3f W" % ((1000.0 * energy_spent) / (timestamps[stop_index] - timestamps[start_index])))
 
-    if save_graph:
+    if graph_name is not None:
         graph_timestamp = [t - timestamps[0] for t in timestamps]
         graph_power = [voltage * r for r in readings]
         plt.scatter(graph_timestamp,
@@ -102,7 +102,8 @@ def parse_file(filename, start_time=None, stop_time=None, save_graph=False):
             plt.axvline(x=graph_timestamp[stop_index], color='r', alpha=0.25)
         plt.xlabel('Time (ms)')
         plt.ylabel('Power (W)')
-        plt.savefig('energy_graph.png', bbox_inches='tight')
+        plt.savefig(graph_name, bbox_inches='tight')
+        plt.clf()
 
 if __name__ == "__main__":
 
