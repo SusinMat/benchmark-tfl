@@ -22,9 +22,14 @@ def print_control_message(msg, mute=False):
 if __name__ == "__main__":
 
     mute_control = False
+    generate_plot = False
 
     if "--mute" in sys.argv:
         mute_control = True
+
+    if "--plot" in sys.argv:
+        generate_plot = True
+
 
     # Start capturing energy readings
 
@@ -87,11 +92,28 @@ if __name__ == "__main__":
     print_control_message("\nCall parser for each inference:", mute_control)
     i = 0
 
-    parse_file("energy_output.txt", start_timestamp[0], stop_timestamp[-1], graph_name='all_inferences_graph.png')
     if len(start_timestamp) > 1:
         for (start,stop) in zip(start_timestamp, stop_timestamp):
             print_control_message("\nInference ", i)
+            if generate_plot:
+                parse_file("energy_output.txt", start, stop,
+                           graph_name='inference' + str(i) + '_graph.png')
+            else:
+                parse_file("energy_output.txt", start, stop, graph_name=None)
+            i += 1
+
+            print("Duration: ", (stop_timestamp[i] - start_timestamp[i]))
+
+
     print_control_message("\nCall parser for all inferences:\n", mute_control)
+    if generate_plot:
+        parse_file("energy_output.txt", start_timestamp[0], stop_timestamp[-1],
+                   graph_name='all_inferences_graph.png')
+    else:
+        parse_file("energy_output.txt", start_timestamp[0], stop_timestamp[-1], graph_name=None)
+
+    print("Duration: ", (stop_timestamp[-1] - start_timestamp[0]), "ms")
+
 
     s = "Start times: " + str(start_timestamp) + "\nStop times:" + str(stop_timestamp)
     print_control_message(s, mute_control)
