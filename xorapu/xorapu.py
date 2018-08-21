@@ -35,6 +35,7 @@ if __name__ == "__main__":
     else:
         bumblebee = subprocess.Popen("sdb shell './bumblebee > energy_output.txt'", shell=True)
 
+    time.sleep(2)
 
     # Run infereces
     print_control_message('starting beeswax', mute_control)
@@ -44,7 +45,7 @@ if __name__ == "__main__":
     #beeswax = subprocess.Popen(["sdb", "shell", "./beeswax", "-f", "image_list.txt"], stdout=subprocess.PIPE)
     print_control_message('finished beeswax', mute_control)
 
-    time.sleep(5)
+    time.sleep(2)
 
     # Stop captuting energy readings
     print_control_message('sending HUP signal to bumblebee', mute_control)
@@ -55,7 +56,8 @@ if __name__ == "__main__":
     else:
         subprocess.Popen("sdb shell pkill -HUP bumblebee", shell=True)
 
-    time.sleep(10)
+
+    time.sleep(2)
 
     # Retrieve energy readings
     print_control_message('pulling out bumblebee output', mute_control)
