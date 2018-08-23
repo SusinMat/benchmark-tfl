@@ -38,7 +38,8 @@ if __name__ == "__main__":
         inference_image = sys.argv[i+1]
         inference_image_name = inference_image.split('/')[-1] # Not windows friendly
 
-    # Start capturing energy readings
+    if "--show_accuracy" in sys.argv:
+        show_accuracy = True
 
 
     # Start capturing energy readings and push image
@@ -89,22 +90,35 @@ if __name__ == "__main__":
     start_timestamp = []
     stop_timestamp = []
 
+    classes = []
+    accuracies = []
+
     delimiter_regex = r"start-end: (?P<start>\d+\.?\d*) (?P<stop>\d+\.?\d*)"
     delimiter_pattern = re.compile(delimiter_regex)
-    match = None
+
+    accuracy_regex =  r"top-5: (?P<class>[A-Za-z ]* )\((?P<accuracy>\d+\.?\d*)%\)"
+    accuracy_pattern = re.compile(accuracy_regex)
+
+    match_delimiter = None
+    match_accuracy = None
 
     for line in beeswax.stdout.readlines():
-        #print_control_message(line.decode('utf-8').rstrip())
-        match = delimiter_pattern.match(line.decode('utf-8'))
-        if match:
-            start_timestamp.append(int(float(match.group("start")) * 1000))
-            stop_timestamp.append(int(float(match.group("stop")) * 1000))
+        # print_control_message(line.decode('utf-8').rstrip())
+
+        match_delimiter = delimiter_pattern.match(line.decode('utf-8'))
+        if match_delimiter:
+            start_timestamp.append(int(float(match_delimiter.group("start")) * 1000))
+            stop_timestamp.append(int(float(match_delimiter.group("stop")) * 1000))
+
+        match_accuracy = accuracy_pattern.match(line.decode('utf-8'))
+        if match_accuracy:
+            classes.append(match_accuracy.group("class"))
+            accuracies.append(match_accuracy.group("accuracy"))
 
     # Call energy readings parser
-    print_control_message("\nCall parser for each inference:", mute_control)
-    i = 0
-
     if len(start_timestamp) > 1:
+        print_control_message("\nCall parser for each inference:", mute_control)
+        i = 0
         for (start,stop) in zip(start_timestamp, stop_timestamp):
             print_control_message("\nInference ", i)
             if generate_plot:
@@ -118,6 +132,9 @@ if __name__ == "__main__":
 
 
     print_control_message("\nCall parser for all inferences:\n", mute_control)
+
+
+    # Output: Always printed
     if generate_plot:
         parse_file("energy_output.txt", start_timestamp[0], stop_timestamp[-1],
                    graph_name='all_inferences_graph.png')
@@ -126,6 +143,9 @@ if __name__ == "__main__":
 
     print("Duration: ", (stop_timestamp[-1] - start_timestamp[0]), "ms")
 
+    if show_accuracy:
+        print("Class:", classes[0])
+        print("Acc:", accuracies[0], "%")
 
     s = "Start times: " + str(start_timestamp) + "\nStop times:" + str(stop_timestamp)
     print_control_message(s, mute_control)
