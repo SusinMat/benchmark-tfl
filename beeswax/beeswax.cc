@@ -53,7 +53,7 @@ void display_usage() {
               << "--labels,       -l: labels for the model\n"
               << "                    default: ./labels.txt\n"
               << "--verbose,      -v: [0|1] print more information\n"
-              << "--count,        -c: loop interpreter->Invoke() for certain times\n"
+              << "--count,        -c: loop interpreter->Invoke() for certain times\n" //FIXME
               << "--threads,      -t: number of threads\n"
               << "--accelerated,  -a: [0|1], use Android NNAPI or note\n"
               << "--input_mean,   -b: input mean\n"

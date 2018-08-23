@@ -25,7 +25,9 @@ def find_start_end(timestamps, start_time, end_time):
 
     return (start_index, end_index)
 
-
+# filename = file with bumblebee output
+# start_time, stop_time = timestamps that define start and stop times of an inference
+# graph_name = if not None, saves a graph of energy usage with name 'graph_name'
 def parse_file(filename, start_time=None, stop_time=None, graph_name=None):
 
     with open(filename, 'r') as f:
