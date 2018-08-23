@@ -23,6 +23,9 @@ if __name__ == "__main__":
 
     mute_control = False
     generate_plot = False
+    inference_image_path = "./grace_hopper.bmp" # Grace Hopper is the default
+    inference_image_name = "grace_hopper.bmp"
+    show_accuracy = False
 
     if "--mute" in sys.argv:
         mute_control = True
@@ -30,21 +33,30 @@ if __name__ == "__main__":
     if "--plot" in sys.argv:
         generate_plot = True
 
+    if "--force_image" in sys.argv:
+        i = sys.argv.index("--force_image")
+        inference_image = sys.argv[i+1]
+        inference_image_name = inference_image.split('/')[-1] # Not windows friendly
 
     # Start capturing energy readings
 
+
+    # Start capturing energy readings and push image
     print_control_message('starting bumblebee', mute_control)
     if mute_control:
         bumblebee = subprocess.Popen("sdb shell './bumblebee > energy_output.txt'", shell=True,
                                      stdout=subprocess.DEVNULL)
+        bumblebee = subprocess.Popen("sdb push " + inference_image + " .", shell=True,
+                                     stdout=subprocess.DEVNULL)
     else:
         bumblebee = subprocess.Popen("sdb shell './bumblebee > energy_output.txt'", shell=True)
+        bumblebee = subprocess.Popen("sdb push " + inference_image + " .", shell=True)
 
     time.sleep(2)
 
     # Run infereces
     print_control_message('starting beeswax', mute_control)
-    beeswax = subprocess.Popen(["sdb", "shell", "./beeswax", "-i", "grace_hopper.bmp"],
+    beeswax = subprocess.Popen(["sdb", "shell", "./beeswax", "-i", inference_image_name],
                                stdout=subprocess.PIPE)
 
     #beeswax = subprocess.Popen(["sdb", "shell", "./beeswax", "-f", "image_list.txt"], stdout=subprocess.PIPE)
