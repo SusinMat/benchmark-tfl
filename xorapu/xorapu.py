@@ -46,6 +46,8 @@ if __name__ == "__main__":
     log.info('pushing input')
     subprocess.Popen("sdb push " + input_file + " .", shell=True, stdout=subprocess.DEVNULL)
 
+    time.sleep(2)
+
     # Run infereces
     log.info('starting beeswax')
     if args.image is not None:
@@ -54,7 +56,10 @@ if __name__ == "__main__":
         beeswax = subprocess.Popen(["sdb", "shell", "./beeswax", "-f", input_file_name], stdout=subprocess.PIPE)
     log.info('finished beeswax')
 
-    time.sleep(1)
+    # Wait beeswax
+    beeswax.wait()
+
+    time.sleep(2)
 
     # Stop captuting energy readings
     log.info('sending HUP signal to bumblebee')
@@ -97,30 +102,32 @@ if __name__ == "__main__":
     log.info("Call parser for each inference:")
     i = 0
     for (start,stop) in zip(start_timestamp, stop_timestamp):
-        log.info("Inference " + str(i))
+        print("\nInference " + str(i))
         if save_graph:
             parse_file("energy_output.txt", start, stop, graph_name='inference' + str(i) + '_graph.png')
         else:
             parse_file("energy_output.txt", start, stop)
-        i += 1
-        print("Duration: ", (stop_timestamp[i] - start_timestamp[i]))
+        print("Duration:", (stop_timestamp[i] - start_timestamp[i]), "ms")
         if show_accuracy:
-            print(accuracy_line[i])
+            print(accuracy_line[i].decode('utf-8').rstrip())
+        i += 1
 
 
     if len(start_timestamp) > 1:
         log.info(("Call parser for all inferences:"))
 
+        print("\nAll inferences")
         # Output: Always printed
         if save_graph:
             parse_file("energy_output.txt", start_timestamp[0], stop_timestamp[-1], graph_name='all_inferences_graph.png')
         else:
             parse_file("energy_output.txt", start_timestamp[0], stop_timestamp[-1])
 
-        print("Duration: ", (stop_timestamp[-1] - start_timestamp[0]), "ms")
+        print("Duration:", (stop_timestamp[-1] - start_timestamp[0]), "ms")
 
 
-    log.info("Start times: " + str(start_timestamp) + "\nStop times:" + str(stop_timestamp))
+    log.info("Start times: " + str(start_timestamp))
+    log.info("Stop times:" + str(stop_timestamp))
 
 
 
