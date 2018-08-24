@@ -5,98 +5,77 @@ import subprocess
 import time
 import signal
 import re
+import argparse
+import os.path
+import logging as log
 
 from energy_parser import parse_file
 
-# Assuming:
-#   tunnel is created
-#   sdb is connected
-#   sdb is rooted
-#   model, images, list of images and labels are inside the device
-
-def print_control_message(msg, mute=False):
-    if not mute:
-        print(msg)
-
-
 if __name__ == "__main__":
 
-    mute_control = False
-    generate_plot = False
-    inference_image_path = "./grace_hopper.bmp" # Grace Hopper is the default
-    inference_image_name = "grace_hopper.bmp"
-    show_accuracy = False
+    # Parse arguments
+    parser = argparse.ArgumentParser(description='Xorapu. Automatic inference test on a tizen device. ' +
+                                                 'This script assumes that: tunnel is created; sdb is connected; sdb is rooted')
 
-    if "--mute" in sys.argv:
-        mute_control = True
+    parser.add_argument('-v', '--verbose', action='store_true', help='Print information along execution')
+    parser.add_argument('-g', '--save_graph', action='store_true', help='Save graph of energy usage of inference')
+    parser.add_argument('-a', '--show_accuracy', action='store_true', help='Print the accuracy of the inference')
 
-    if "--plot" in sys.argv:
-        generate_plot = True
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('-i', '--image', type=str, metavar='IMAGE.bmp', help='Image input (.bmp)')
+    group.add_argument('-f','--image_list', type=str, metavar='IMAGE_LIST.txt', help='Text file with a list of input images (.bmp)')
 
-    if "--force_image" in sys.argv:
-        i = sys.argv.index("--force_image")
-        inference_image = sys.argv[i+1]
-        inference_image_name = inference_image.split('/')[-1] # Not windows friendly
+    args = parser.parse_args()
 
-    if "--show_accuracy" in sys.argv:
-        show_accuracy = True
-
-
-    # Start capturing energy readings and push image
-    print_control_message('starting bumblebee', mute_control)
-    if mute_control:
-        bumblebee = subprocess.Popen("sdb shell './bumblebee > energy_output.txt'", shell=True,
-                                     stdout=subprocess.DEVNULL)
-        bumblebee = subprocess.Popen("sdb push " + inference_image + " .", shell=True,
-                                     stdout=subprocess.DEVNULL)
+    # Get arguments
+    if args.verbose:
+        log.basicConfig(format="%(levelname)s: %(message)s", level=log.DEBUG)
+    save_graph = args.save_graph
+    show_accuracy = args.show_accuracy
+    if args.image is not None:
+        input_file = args.image
     else:
-        bumblebee = subprocess.Popen("sdb shell './bumblebee > energy_output.txt'", shell=True)
-        bumblebee = subprocess.Popen("sdb push " + inference_image + " .", shell=True)
+        input_file = args.image_list
 
-    time.sleep(2)
+    input_file_name = os.path.basename(input_file)
+
+    # Start capturing energy readings
+    log.info('starting bumblebee')
+    subprocess.Popen("sdb shell './bumblebee > energy_output.txt'", shell=True, stdout=subprocess.DEVNULL)
+
+    log.info('pushing input')
+    subprocess.Popen("sdb push " + input_file + " .", shell=True, stdout=subprocess.DEVNULL)
 
     # Run infereces
-    print_control_message('starting beeswax', mute_control)
-    beeswax = subprocess.Popen(["sdb", "shell", "./beeswax", "-i", inference_image_name],
-                               stdout=subprocess.PIPE)
+    log.info('starting beeswax')
+    if args.image is not None:
+        beeswax = subprocess.Popen(["sdb", "shell", "./beeswax", "-i", input_file_name], stdout=subprocess.PIPE)
+    else:
+        beeswax = subprocess.Popen(["sdb", "shell", "./beeswax", "-f", input_file_name], stdout=subprocess.PIPE)
+    log.info('finished beeswax')
 
-    #beeswax = subprocess.Popen(["sdb", "shell", "./beeswax", "-f", "image_list.txt"], stdout=subprocess.PIPE)
-    print_control_message('finished beeswax', mute_control)
-
-    time.sleep(2)
+    time.sleep(1)
 
     # Stop captuting energy readings
-    print_control_message('sending HUP signal to bumblebee', mute_control)
+    log.info('sending HUP signal to bumblebee')
+    subprocess.Popen("sdb shell pkill -HUP bumblebee", shell=True, stdout=subprocess.DEVNULL)
 
-    if mute_control:
-        subprocess.Popen("sdb shell pkill -HUP bumblebee", shell=True, stdout=subprocess.DEVNULL)
-
-    else:
-        subprocess.Popen("sdb shell pkill -HUP bumblebee", shell=True)
-
-
-    time.sleep(2)
+    time.sleep(1)
 
     # Retrieve energy readings
-    print_control_message('pulling out bumblebee output', mute_control)
-
-    if mute_control:
-        subprocess.call(["sdb", "pull", "energy_output.txt", "energy_output.txt"],
-                        stdout=subprocess.DEVNULL)
-    else:
-        subprocess.call(["sdb", "pull", "energy_output.txt", "energy_output.txt"])
+    log.info('pulling out bumblebee output')
+    subprocess.call(["sdb", "pull", "energy_output.txt", "energy_output.txt"], stdout=subprocess.DEVNULL)
 
     # Read start and end timestamps of inferences
     start_timestamp = []
     stop_timestamp = []
 
-    classes = []
-    accuracies = []
+    accuracy_line = []
 
     delimiter_regex = r"start-end: (?P<start>\d+\.?\d*) (?P<stop>\d+\.?\d*)"
     delimiter_pattern = re.compile(delimiter_regex)
 
-    accuracy_regex =  r"top-5: (?P<class>[A-Za-z ]* )\((?P<accuracy>\d+\.?\d*)%\)"
+    accuracy_regex =  r"top-5: ([A-Za-z ]* )\((\d+\.?\d*)%\)"
     accuracy_pattern = re.compile(accuracy_regex)
 
     match_delimiter = None
@@ -112,40 +91,37 @@ if __name__ == "__main__":
 
         match_accuracy = accuracy_pattern.match(line.decode('utf-8'))
         if match_accuracy:
-            classes.append(match_accuracy.group("class"))
-            accuracies.append(match_accuracy.group("accuracy"))
+            accuracy_line.append(line)
 
     # Call energy readings parser
+    log.info("Call parser for each inference:")
+    i = 0
+    for (start,stop) in zip(start_timestamp, stop_timestamp):
+        log.info("Inference " + str(i))
+        if save_graph:
+            parse_file("energy_output.txt", start, stop, graph_name='inference' + str(i) + '_graph.png')
+        else:
+            parse_file("energy_output.txt", start, stop)
+        i += 1
+        print("Duration: ", (stop_timestamp[i] - start_timestamp[i]))
+        if show_accuracy:
+            print(accuracy_line[i])
+
+
     if len(start_timestamp) > 1:
-        print_control_message("\nCall parser for each inference:", mute_control)
-        i = 0
-        for (start,stop) in zip(start_timestamp, stop_timestamp):
-            print_control_message("\nInference ", i)
-            if generate_plot:
-                parse_file("energy_output.txt", start, stop,
-                           graph_name='inference' + str(i) + '_graph.png')
-            else:
-                parse_file("energy_output.txt", start, stop, graph_name=None)
-            i += 1
+        log.info(("Call parser for all inferences:"))
 
-            print("Duration: ", (stop_timestamp[i] - start_timestamp[i]))
+        # Output: Always printed
+        if save_graph:
+            parse_file("energy_output.txt", start_timestamp[0], stop_timestamp[-1], graph_name='all_inferences_graph.png')
+        else:
+            parse_file("energy_output.txt", start_timestamp[0], stop_timestamp[-1])
+
+        print("Duration: ", (stop_timestamp[-1] - start_timestamp[0]), "ms")
 
 
-    print_control_message("\nCall parser for all inferences:\n", mute_control)
+    log.info("Start times: " + str(start_timestamp) + "\nStop times:" + str(stop_timestamp))
 
 
-    # Output: Always printed
-    if generate_plot:
-        parse_file("energy_output.txt", start_timestamp[0], stop_timestamp[-1],
-                   graph_name='all_inferences_graph.png')
-    else:
-        parse_file("energy_output.txt", start_timestamp[0], stop_timestamp[-1], graph_name=None)
 
-    print("Duration: ", (stop_timestamp[-1] - start_timestamp[0]), "ms")
 
-    if show_accuracy:
-        print("Class:", classes[0])
-        print("Acc:", accuracies[0], "%")
-
-    s = "Start times: " + str(start_timestamp) + "\nStop times:" + str(stop_timestamp)
-    print_control_message(s, mute_control)

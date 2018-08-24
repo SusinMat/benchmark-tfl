@@ -122,6 +122,10 @@ Prints two lines at a time:
 ### Usage
 
 ```sh
+# Enter raspberry pi shell
+# It needs to be connected to smartpower2
+sdb shell
+
 ./bumblebee
 ```
 
@@ -134,6 +138,29 @@ CLOCK: 1534966711.469 s
 ```
 ## Xorapu
 Automates test with bumblebee and beeswax on raspberry pi.
+
+1. Captures energy readings with bumblebee
+2. Pushes input file to tize device
+3. Runs inference with beeswax
+4. Pull back energy readings
+5. Parses energy reading with energy_parser
+
+```
+usage: xorapu.py [-h] [-v] [-g] [-a] (-i IMAGE.bmp | -f IMAGE_LIST.txt)
+
+Xorapu. Automatic inference test on a tizen device. This script assumes that:
+tunnel is created; sdb is connected; sdb is rooted
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Print information along execution
+  -g, --save_graph      Save graph of energy usage of inference
+  -a, --show_accuracy   Print the accuracy of the inference
+  -i IMAGE.bmp, --image IMAGE.bmp
+                        Image input (.bmp)
+  -f IMAGE_LIST.txt, --image_list IMAGE_LIST.txt
+                        Text file with a list of input images (.bmp)
+```
 
 ### Energy parser
 Parses bumblebee output and print power usage.    
