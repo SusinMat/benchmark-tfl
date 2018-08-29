@@ -146,7 +146,8 @@ Automates test with bumblebee and beeswax on raspberry pi.
 5. Parses energy reading with energy_parser
 
 ```
-usage: xorapu.py [-h] [-v] [-g] [-a] (-i IMAGE.bmp | -f IMAGE_LIST.txt)
+usage: xorapu.py [-h] [-v] [-g] [-a] [-c LOOP_COUNT]
+                 (-i IMAGE.bmp | -f IMAGE_LIST.txt)
 
 Xorapu. Automatic inference test on a tizen device. This script assumes that:
 tunnel is created; sdb is connected; sdb is rooted
@@ -156,6 +157,9 @@ optional arguments:
   -v, --verbose         Print information along execution
   -g, --save_graph      Save graph of energy usage of inference
   -a, --show_accuracy   Print the accuracy of the inference
+  -c LOOP_COUNT, --loop_count LOOP_COUNT
+                        The number of inferences done with each image.
+                        Default: 1.
   -i IMAGE.bmp, --image IMAGE.bmp
                         Image input (.bmp)
   -f IMAGE_LIST.txt, --image_list IMAGE_LIST.txt
