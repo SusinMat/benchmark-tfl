@@ -20,6 +20,7 @@ if __name__ == "__main__":
     parser.add_argument('-v', '--verbose', action='store_true', help='Print information along execution')
     parser.add_argument('-g', '--save_graph', action='store_true', help='Save graph of energy usage of inference')
     parser.add_argument('-a', '--show_accuracy', action='store_true', help='Print the accuracy of the inference')
+    parser.add_argument('-c', '--loop_count', type=int, default=1, help='The number of inferences done with each image. Default: 1.')
 
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-i', '--image', type=str, metavar='IMAGE.bmp', help='Image input (.bmp)')
@@ -32,6 +33,7 @@ if __name__ == "__main__":
         log.basicConfig(format="%(levelname)s: %(message)s", level=log.DEBUG)
     save_graph = args.save_graph
     show_accuracy = args.show_accuracy
+    loop_count = args.loop_count
     if args.image is not None:
         input_file = args.image
     else:
@@ -48,12 +50,12 @@ if __name__ == "__main__":
 
     time.sleep(2)
 
-    # Run infereces
+    # Run inferences
     log.info('starting beeswax')
     if args.image is not None:
-        beeswax = subprocess.Popen(["sdb", "shell", "./beeswax", "-i", input_file_name], stdout=subprocess.PIPE)
+        beeswax = subprocess.Popen(["sdb", "shell", "./beeswax", "-i", input_file_name, "-c", loop_count], stdout=subprocess.PIPE)
     else:
-        beeswax = subprocess.Popen(["sdb", "shell", "./beeswax", "-f", input_file_name], stdout=subprocess.PIPE)
+        beeswax = subprocess.Popen(["sdb", "shell", "./beeswax", "-f", input_file_name, "-c", loop_count], stdout=subprocess.PIPE)
     log.info('finished beeswax')
 
     # Wait beeswax

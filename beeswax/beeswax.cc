@@ -53,7 +53,7 @@ void display_usage() {
               << "--labels,       -l: labels for the model\n"
               << "                    default: ./labels.txt\n"
               << "--verbose,      -v: [0|1] print more information\n"
-              << "--count,        -c: loop interpreter->Invoke() for certain times\n" //FIXME
+              << "--count,        -c: loop interpreter->Invoke() for certain times\n"
               << "--threads,      -t: number of threads\n"
               << "--accelerated,  -a: [0|1], use Android NNAPI or note\n"
               << "--input_mean,   -b: input mean\n"
@@ -272,7 +272,7 @@ void RunInference(Settings &s,
     }
     std::cout << std::endl;
 
-    std::cout << "time: "
+    std::cout << "average-time: "
               << (get_micro_s(stop_time) - get_micro_s(start_time)) / (s.loop_count * 1000)
               << " ms \n";
 
