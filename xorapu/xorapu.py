@@ -127,10 +127,5 @@ if __name__ == "__main__":
 
         print("Duration:", (stop_timestamp[-1] - start_timestamp[0]), "ms")
 
-
     log.info("Start times: " + str(start_timestamp))
-    log.info("Stop times:" + str(stop_timestamp))
-
-
-
-
+    log.info("Stop times: " + str(stop_timestamp))
