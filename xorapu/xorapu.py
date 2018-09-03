@@ -114,11 +114,12 @@ if __name__ == "__main__":
             print(accuracy_line[i].decode('utf-8').rstrip())
         i += 1
 
+    print("\n")
 
     if len(start_timestamp) > 1:
         log.info(("Call parser for all inferences:"))
 
-        print("\nAll inferences")
+        print("All inferences")
         # Output: Always printed
         if save_graph:
             parse_file("energy_output.txt", start_timestamp[0], stop_timestamp[-1], graph_name='all_inferences_graph.png')
@@ -128,4 +129,4 @@ if __name__ == "__main__":
         print("Duration:", (stop_timestamp[-1] - start_timestamp[0]), "ms")
 
     log.info("Start times: " + str(start_timestamp))
-    log.info("Stop times: " + str(stop_timestamp))
+    log.info("Stop times:  " + str(stop_timestamp))
