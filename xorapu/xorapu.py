@@ -53,9 +53,9 @@ if __name__ == "__main__":
     # Run inferences
     log.info('starting beeswax')
     if args.image is not None:
-        beeswax = subprocess.Popen(["sdb", "shell", "./beeswax", "-i", input_file_name, "-c", loop_count], stdout=subprocess.PIPE)
+        beeswax = subprocess.Popen(["sdb", "shell", "./beeswax", "-i", input_file_name, "-c", str(loop_count)], stdout=subprocess.PIPE)
     else:
-        beeswax = subprocess.Popen(["sdb", "shell", "./beeswax", "-f", input_file_name, "-c", loop_count], stdout=subprocess.PIPE)
+        beeswax = subprocess.Popen(["sdb", "shell", "./beeswax", "-f", input_file_name, "-c", str(loop_count)], stdout=subprocess.PIPE)
     log.info('finished beeswax')
 
     # Wait beeswax
