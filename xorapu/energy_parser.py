@@ -107,6 +107,8 @@ def parse_file(filename, start_time=None, stop_time=None, graph_name=None):
         plt.savefig(graph_name, bbox_inches='tight')
         plt.clf()
 
+    return energy_spent
+
 if __name__ == "__main__":
 
     filename = sys.argv[1]

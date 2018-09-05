@@ -119,11 +119,12 @@ if __name__ == "__main__":
     for (start, stop) in zip(start_timestamp, stop_timestamp):
         print("Image " + str(i))
         if save_graph:
-            parse_file("energy_output.txt", start, stop, graph_name='image' + str(i) + '_graph.png')
+            energy_spent = parse_file("energy_output.txt", start, stop, graph_name='image' + str(i) + '_graph.png')
         else:
-            parse_file("energy_output.txt", start, stop)
+            energy_spent = parse_file("energy_output.txt", start, stop)
         if loop_count > 1:
-            print("Average-time:", average_time[i], "ms")
+            print("Average energy spent: %.3f J" % (energy_spent / loop_count))
+            print("Average time:", average_time[i], "ms")
         print("Duration:", (stop_timestamp[i] - start_timestamp[i]), "ms")
         if show_accuracy:
             print(accuracy_line[i].decode('utf-8').rstrip())
