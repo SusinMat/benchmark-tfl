@@ -101,7 +101,7 @@ void sync_on_comma(int fd)
 int main(int argc, char **argv)
 {
 	const int record_size = 6;
-	const int record_max = 5000;
+	const int record_max = 1000;
 	const int buf_size = (record_max + 1) * record_size;
 	char buf[2][buf_size];
 	buffer_shared[0] = buf[0];
