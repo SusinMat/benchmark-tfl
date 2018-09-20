@@ -108,10 +108,18 @@ int main(int argc, char **argv)
 	buffer_shared[1] = buf[1];
 	bool alternate = false;
 	int cursor_position = 0;
-	char *portname = "/dev/ttyUSB0";
-	int fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC);
+	char portname[128];
+	int fd = -1;
 	struct sigaction action;
 	pthread_t writer;
+
+	if (argc > 1) {
+		strncpy(portname, argv[1], 128);
+	} else {
+		strcpy(portname, "/dev/ttyUSB0");
+	}
+
+	fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC);
 
 	// printf("      This      is\n""<B><U><M><B><L><E><B><E><E>\n");
 	if (fd < 0) {
