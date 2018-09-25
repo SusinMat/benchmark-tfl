@@ -52,8 +52,10 @@ void display_usage() {
               << "                    default: ./mobilenet_quant_v1_224.tflite\n"
               << "--labels,       -l: labels for the model\n"
               << "                    default: ./labels.txt\n"
-              << "--verbose,      -v: [0|1] print more information\n"
+              << "--verbose,      -v: print more information\n"
               << "--count,        -c: loop interpreter->Invoke() for certain times\n"
+              << "--profile,      -p: profiler dump path\n"
+              << "                    use absolute paths (or './' for execution dir)\n"
               << "--threads,      -t: number of threads\n"
               << "--accelerated,  -a: [0|1], use Android NNAPI or note\n"
               << "--input_mean,   -b: input mean\n"
@@ -146,7 +148,9 @@ void PrepareInference(Settings &s,
 
 void RunInference(Settings &s,
                   std::unique_ptr<tflite::Interpreter> &interpreter,
-                  std::string input_img_name) {
+                  const std::string input_img_name,
+                  const int image_index,
+                  const std::string profile_dump_path) {
 
 
     // Input image dimensions (set in read_bmp)
@@ -205,12 +209,23 @@ void RunInference(Settings &s,
                        << interpreter->tensor(inputs[0])->type << " yet";
             exit(-1);
     }
-
     struct timespec start_time, stop_time;
     clock_gettime(CLOCK_REALTIME, &start_time);
     TfLiteStatus status;
-    for (int i = 0; i < s.loop_count; i++) {
-        status = interpreter->Invoke();
+    if (image_index == -1) {
+        for (int i = 0; i < s.loop_count; i++) {
+            status = interpreter->Invoke();
+        }
+    } else {
+        char formated_profiler_name[30];
+        std::string formated_profiler_name_string;
+        // Run invoke and dump profile file named "image0000_loop00.json"
+        for (int i = 0; i < s.loop_count; i++) {
+            sprintf(formated_profiler_name, "image%04d_loop%02d.json", image_index, i);
+            formated_profiler_name_string = formated_profiler_name;
+            formated_profiler_name_string = profile_dump_path + formated_profiler_name_string;
+            status = interpreter->Invoke(formated_profiler_name_string);
+        }
     }
     clock_gettime(CLOCK_REALTIME, &stop_time);
     if (s.verbose) {
@@ -295,23 +310,24 @@ void ParseSettings(Settings &s,
     while (1) {
         static struct option long_options[] = {
             {"accelerated",  required_argument, 0, 'a'},
-            {"count",        required_argument, 0, 'c'},
-            {"verbose",      required_argument, 0, 'v'},
-            {"image",        required_argument, 0, 'i'},
-            {"image_list",   required_argument, 0, 'f'},
-            {"labels",       required_argument, 0, 'l'},
-            {"help",         no_argument,       0, 'h'},
-            {"tflite_model", required_argument, 0, 'm'},
-            {"threads",      required_argument, 0, 't'},
             {"input_mean",   required_argument, 0, 'b'},
+            {"count",        required_argument, 0, 'c'},
+            {"image_list",   required_argument, 0, 'f'},
+            {"help",         no_argument,       0, 'h'},
+            {"image",        required_argument, 0, 'i'},
+            {"labels",       required_argument, 0, 'l'},
+            {"tflite_model", required_argument, 0, 'm'},
+            {"profile",      required_argument, 0, 'p'},
             {"input_std",    required_argument, 0, 's'},
+            {"threads",      required_argument, 0, 't'},
+            {"verbose",      no_argument,       0, 'v'},
             {0, 0, 0, 0}
         };
 
         /* getopt_long stores the option index here. */
         int option_index = 0;
 
-        c = getopt_long(argc, argv, "a:b:c:f:i:f:l:hm:s:t:v:", long_options,
+        c = getopt_long(argc, argv, "a:b:c:f:hi:l:m:p:s:t:v", long_options,
                                         &option_index);
 
         /* Detect the end of the options. */
@@ -339,6 +355,9 @@ void ParseSettings(Settings &s,
             case 'm':
                 s.model_name        = optarg;
                 break;
+            case 'p':
+                s.profile           = optarg;
+                break;
             case 's':
                 s.input_std         = strtod(optarg, NULL);
                 break;
@@ -346,7 +365,7 @@ void ParseSettings(Settings &s,
                 s.number_of_threads = strtol(optarg, NULL, 10);
                 break;
             case 'v':
-                s.verbose           = strtol(optarg, NULL, 10);
+                s.verbose           = true;
                 break;
             case 'h':
                 display_usage();
@@ -367,6 +386,7 @@ int Main(int argc, char** argv) {
     std::string input_img_list;
     std::unique_ptr<tflite::FlatBufferModel> model;
     std::unique_ptr<tflite::Interpreter> interpreter;
+    int image_index = 0;
 
     ParseSettings(s, input_img, input_img_list, argc, argv);
 
@@ -374,7 +394,11 @@ int Main(int argc, char** argv) {
 
     // run inference with single image
     if(!input_img.empty()) {
-        RunInference(s, interpreter, input_img);
+        if(s.profile != ""){
+            RunInference(s, interpreter, input_img, image_index, s.profile);
+        } else {
+            RunInference(s, interpreter, input_img);
+        }
     // run inference with list of images from input_img_list
     } else if(!input_img_list.empty()){
         std::ifstream input_file(input_img_list);
@@ -382,7 +406,12 @@ int Main(int argc, char** argv) {
 
         if (input_file.is_open()) {
             while(std::getline(input_file, line)) {
-                RunInference(s, interpreter, line);
+                if(s.profile != ""){
+                    RunInference(s, interpreter, line, image_index, s.profile);
+                } else {
+                    RunInference(s, interpreter, line);
+                }
+                image_index++;
             }
             input_file.close();
         } else {

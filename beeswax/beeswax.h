@@ -27,6 +27,7 @@ namespace beeswax {
 // Inference settings
 struct Settings {
     bool verbose = false;
+    std::string profile = "";
     bool accel = false;
     bool input_floating = false;
     int loop_count = 1;
@@ -64,7 +65,9 @@ void PrepareInference(Settings &s,
 // Run inference with settings s on the img input_img_name
 void RunInference(Settings &s,
                   std::unique_ptr<tflite::Interpreter> &interpreter,
-                  std::string input_img_name);
+                  const std::string input_img_name,
+                  const int imageindex = -1,
+                  const std::string profile_dump_path = "");
 
 // Main function
 int Main(int argc, char** argv);
