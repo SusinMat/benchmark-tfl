@@ -38,6 +38,7 @@ ExternalProject_Add(tensorflow_lite
     PREFIX="${TENSORFLOW_LITE_INSTALL_DIR}"
     )
 
+message(STATUS "-- CMAKE_FIND_ROOT_PATH: ${CMAKE_FIND_ROOT_PATH}")
 find_package(Threads REQUIRED)
 
 include_directories(
