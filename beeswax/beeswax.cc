@@ -279,10 +279,10 @@ void RunInference(Settings &s,
 
         if(it == top_results.begin()){
             std::cout << " " << labels[index];
-            printf(" (%.2f%)", confidence*100);
+            printf(" (%.2f%%)", confidence * 100);
         } else {
             std::cout << " | " << labels[index];
-            printf(" (%.2f%)", confidence*100);
+            printf(" (%.2f%%)", confidence * 100);
         }
     }
     std::cout << std::endl;
