@@ -92,9 +92,10 @@ void set_blocking(int fd, bool should_block)
 void sync_on_comma(int fd)
 {
 	char buf[2] = "\r";
+	int unused __attribute__((unused));
 
 	do {
-		read(fd, buf, 1);
+		unused = read(fd, buf, 1);
 	} while (buf[0] != ',');
 }
 
