@@ -64,7 +64,7 @@ void display_usage() {
 }
 
 double get_micro_s(struct timespec t) {
-    return (t.tv_sec * 1000000 + t.tv_nsec/1000);
+    return (t.tv_sec * 1000000.0 + t.tv_nsec/1000.0);
 }
 
 bool ReadLabelsFile(const std::string& file_name,
