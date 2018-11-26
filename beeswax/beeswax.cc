@@ -297,8 +297,7 @@ void RunInference(Settings &s,
 
     printf("start-end: %.3f %.3f\n", start_time_d, stop_time_d);
 
-    free(in);
-    // free(dims);
+    delete [] in;
 }
 
 
