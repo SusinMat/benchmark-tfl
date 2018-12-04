@@ -64,7 +64,7 @@ void display_usage() {
 }
 
 double get_micro_s(struct timespec t) {
-    return (t.tv_sec * 1000000 + t.tv_nsec/1000);
+    return (t.tv_sec * 1000000.0 + t.tv_nsec/1000.0);
 }
 
 bool ReadLabelsFile(const std::string& file_name,
@@ -292,11 +292,12 @@ void RunInference(Settings &s,
               << " ms \n";
 
 
-	double start_time_d = start_time.tv_sec + start_time.tv_nsec/1000000000.0;
-	double stop_time_d = stop_time.tv_sec + stop_time.tv_nsec/1000000000.0;
+    double start_time_d = start_time.tv_sec + start_time.tv_nsec/1000000000.0;
+    double stop_time_d = stop_time.tv_sec + stop_time.tv_nsec/1000000000.0;
 
-	printf("start-end: %.3f %.3f\n", start_time_d, stop_time_d);
+    printf("start-end: %.3f %.3f\n", start_time_d, stop_time_d);
 
+    delete [] in;
 }
 
 
