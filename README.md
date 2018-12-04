@@ -78,8 +78,10 @@ LEDL version of label_image
                     default: ./mobilenet_quant_v1_224.tflite
 --labels,       -l: labels for the model
                     default: ./labels.txt
---verbose,      -v: [0|1] print more information
+--verbose,      -v: print more information
 --count,        -c: loop interpreter->Invoke() for certain times
+--profile,      -p: profiler dump path
+                    use absolute paths (or './' for execution dir)
 --threads,      -t: number of threads
 --accelerated,  -a: [0|1], use Android NNAPI or note
 --input_mean,   -b: input mean
@@ -137,6 +139,7 @@ CLOCK: 1534966711.469 s
 0.480,0.415,0.456,0.416,0.430,0.413,0.415,0.426,...
 ```
 ## Xorapu
+(*Depracated*, use kbench instead)    
 Automates test with bumblebee and beeswax on raspberry pi.
 
 1. Captures energy readings with bumblebee
@@ -167,6 +170,7 @@ optional arguments:
 ```
 
 ### Energy parser
+(*Depracated*, use kbench instead)    
 Parses bumblebee output and print power usage.    
 (Used by xorapu)    
 
