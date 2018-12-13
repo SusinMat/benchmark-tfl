@@ -1,4 +1,5 @@
 build/
+build-host/
 .vscode
 testdata/label_image
 testdata/beeswax

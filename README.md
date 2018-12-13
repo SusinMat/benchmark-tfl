@@ -68,24 +68,10 @@ sdb push testdata/tench.bmp tench.bmp
 By LEDL inspired by TensorFlow Lite's label_image.    
 Loads a flatbuffer model and its labels and run inference with images.
 
+To display the help message and check the supported arguments, issue:
+
 ```
-LEDL version of label_image
-./beeswax [OPTIONS]
---help,         -h: show help message
---image,        -i: image_name.bmp
---image_list,   -f: image_list.txt
---tflite_model, -m: model_name.tflite
-                    default: ./mobilenet_quant_v1_224.tflite
---labels,       -l: labels for the model
-                    default: ./labels.txt
---verbose,      -v: print more information
---count,        -c: loop interpreter->Invoke() for certain times
---profile,      -p: profiler dump path
-                    use absolute paths (or './' for execution dir)
---threads,      -t: number of threads
---accelerated,  -a: [0|1], use Android NNAPI or note
---input_mean,   -b: input mean
---input_std,    -s: input standard deviation
+./beeswax -h
 ```
 
 ### Usage
@@ -94,17 +80,17 @@ LEDL version of label_image
 # Enter raspberry pi shell
 sdb shell
 
-# Print beeswax help message
-./beeswax --help
+# Run inference of one image with the model 'mobilenet_v1_1.0_224.tflite' and its label file 
+./beeswax -i grace_hopper.bmp -m mobilenet_v1_1.0_224.tflite -l labels.txt
 
-# Run inference of one image
-./beeswax -i grace_hopper.bmp
+# Run 10 inferences of one image with the model 'mobilenet_v1_1.0_224.tflite' and its label file 
+./beeswax -i grace_hopper.bmp -m mobilenet_v1_1.0_224.tflite -l labels.txt -c 10
 
-# Run inference of all images in image_list
-./beeswax -f image_list.txt
+# Run one inference of all images in image_list with the model 'mobilenet_v1_1.0_224.tflite' and its label file 
+./beeswax -f image_list.txt -m mobilenet_v1_1.0_224.tflite -l labels.txt
 ```
 
-Output example of one image:
+Output of one image:
 
 ```sh
 image-path: grace_hopper.bmp
@@ -138,57 +124,10 @@ CLOCK: 1534966710.471 s
 CLOCK: 1534966711.469 s
 0.480,0.415,0.456,0.416,0.430,0.413,0.415,0.426,...
 ```
-## Xorapu
-(*Depracated*, use kbench instead)    
-Automates test with bumblebee and beeswax on raspberry pi.
 
-1. Captures energy readings with bumblebee
-2. Pushes input file to tize device
-3. Runs inference with beeswax
-4. Pull back energy readings
-5. Parses energy reading with energy_parser
+## Graph example
 
-```
-usage: xorapu.py [-h] [-v] [-g] [-a] [-c LOOP_COUNT]
-                 (-i IMAGE.bmp | -f IMAGE_LIST.txt)
-
-Xorapu. Automatic inference test on a tizen device. This script assumes that:
-tunnel is created; sdb is connected; sdb is rooted
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -v, --verbose         Print information along execution
-  -g, --save_graph      Save graph of energy usage of inference
-  -a, --show_accuracy   Print the accuracy of the inference
-  -c LOOP_COUNT, --loop_count LOOP_COUNT
-                        The number of inferences done with each image.
-                        Default: 1.
-  -i IMAGE.bmp, --image IMAGE.bmp
-                        Image input (.bmp)
-  -f IMAGE_LIST.txt, --image_list IMAGE_LIST.txt
-                        Text file with a list of input images (.bmp)
-```
-
-### Energy parser
-(*Depracated*, use kbench instead)    
-Parses bumblebee output and print power usage.    
-(Used by xorapu)    
-
-Execute by importing it in python:
-```py
-from energy_parser import parse_file
-# filename = file with bumblebee output
-# start_time, stop_time = timestamps that define start and stop times of an inference
-# graph_name = if not None, saves a graph of energy usage with name 'graph_name'
-parse_file(filename, start_time=None, stop_time=None, graph_name=None)
-```
-
-Output example:
-```sh
-Energy spent: 0.896 J
-Average power: 3.166 W
-```
-
-Graph example of 5 inferences, red bars indicate start and end of inferences:    
+5 inferences, red bars indicate start and end of inferences. 
+`bumblebee` colected the energy spent and `beeswax` executed the inferences:    
 
 ![graph example](graph_example.png)
