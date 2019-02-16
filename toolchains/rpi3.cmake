@@ -1,11 +1,11 @@
 SET(CMAKE_SYSTEM_NAME Linux)
 SET(CMAKE_SYSTEM_VERSION 1)
 
-set(__compiler_prefix "arm-linux-gnu-")
+set(__compiler_prefix "arm-linux-gnueabihf-")
 
 # specify the cross compiler
 set(CMAKE_C_COMPILER   "${__compiler_prefix}gcc")
-set(CMAKE_CXX_COMPILER "${__compiler_prefix}cpp")
+set(CMAKE_CXX_COMPILER "${__compiler_prefix}g++")
 
 set( CMAKE_STRIP        "${__compiler_prefix}strip"   CACHE PATH "strip" )
 set( CMAKE_AR           "${__compiler_prefix}ar"      CACHE PATH "archive" )
@@ -18,7 +18,8 @@ set( CMAKE_RANLIB       "${__compiler_prefix}ranlib"  CACHE PATH "ranlib" )
 add_definitions(-D_DEBUG)
 add_definitions(-D__ARM_NEON)
 set(RPI3_EXTRA_FLAGS "${RPI3_EXTRA_FLAGS} -march=armv7-a")
-set(RPI3_EXTRA_FLAGS "${RPI3_EXTRA_FLAGS} -mfloat-abi=softfp")
+# set(RPI3_EXTRA_FLAGS "${RPI3_EXTRA_FLAGS} -mfloat-abi=softfp")
+# set(RPI3_EXTRA_FLAGS "${RPI3_EXTRA_FLAGS} -mfloat-abi=hard")
 set(RPI3_EXTRA_FLAGS "${RPI3_EXTRA_FLAGS} -mfpu=neon-vfpv4")
 set(RPI3_EXTRA_FLAGS "${RPI3_EXTRA_FLAGS} -funsafe-math-optimizations")
 set(RPI3_EXTRA_FLAGS "${RPI3_EXTRA_FLAGS} -ftree-vectorize")

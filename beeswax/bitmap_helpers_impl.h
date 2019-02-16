@@ -61,9 +61,9 @@ void resize(T* out, uint8_t* in, int image_height, int image_width,
       {1, wanted_height, wanted_width, wanted_channels}, quant);
 
   tflite::ops::builtin::BuiltinOpResolver resolver;
-  TfLiteRegistration* resize_op =
-      resolver.FindOp(tflite::BuiltinOperator_RESIZE_BILINEAR);
-  auto* params = reinterpret_cast<TfLiteResizeBilinearParams*>(
+  const TfLiteRegistration *resize_op =
+      resolver.FindOp(tflite::BuiltinOperator_RESIZE_BILINEAR, 1);
+  auto* params = reinterpret_cast<TfLiteResizeBilinearParams *>(
       malloc(sizeof(TfLiteResizeBilinearParams)));
   params->align_corners = false;
   interpreter->AddNodeWithParameters({0, 1}, {2}, nullptr, 0, params, resize_op,
