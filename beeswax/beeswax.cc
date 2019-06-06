@@ -36,6 +36,8 @@ limitations under the License.
 #include "tensorflow/contrib/lite/interpreter.h"
 #include "tensorflow/contrib/lite/optional_debug_tools.h"
 
+#include "tensorflow/contrib/lite/kernels/user_ops/user_ops.h"
+
 #include "bitmap_helpers.h"
 #include "get_top_n.h"
 
@@ -112,6 +114,7 @@ void PrepareInference(Settings &s,
     }
 
     tflite::ops::builtin::BuiltinOpResolver resolver;
+    resolver.AddCustom("Dragunov", tflite::ops::Register_DRAGUNOV());
 
     tflite::InterpreterBuilder(*model, resolver)(&interpreter);
     if (!interpreter) {
